@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="Sudoku.css" />
+  <meta charset="UTF-8">
+  <style>
+    body {
+      margin: 0;
+      background-color: #111;
+      color: white;
+      font-family: 'Courier New', monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      transition: background-color 0.3s, color 0.3s;
+      position: relative;
+    }
+
+    .subtitle {
+      font-size: 28px;
+      margin: 20px 0;
+      font-style: italic;
+    }
+
+    .button-container {
+      border: 1px solid white;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      border-radius: 10px;
+      margin-bottom: 80px;
+    }
+
+    .button-container button {
+      background: transparent;
+      border: 2px solid white;
+      color: white;
+      font-size: 22px;
+      padding: 12px 24px;
+      cursor: pointer;
+      font-style: italic;
+      border-radius: 5px;
+      transition: background-color 0.2s;
+    }
+
+    .button-container button:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    #logo {
+      width: 500px;
+      height: 900px;
+      margin-bottom: -80px;
+      margin-top: -70px;
+    }
+
+    #settingsButtonPosition {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: none;
+      border: none;
+      font-size: 30px;
+      cursor: pointer;
+      color: white;
+    }
+
+    .SettingPopUp {
+      position: fixed;
+      top: 0;
+      right: 0;
+      height: 100vh;
+      width: 300px;
+      background-color: #222;
+      border-left: 2px solid white;
+      padding: 20px;
+      box-shadow: -5px 0 10px rgba(0,0,0,0.5);
+      flex-direction: column;
+      z-index: 1000;
+      transform: translateX(100%);
+      transition: transform 0.3s ease-in-out;
+      display: flex;
+    }
+
+    .SettingPopUp.open {
+      transform: translateX(0);
+    }
+
+    .SettingPopUp button {
+      font-size: 18px;
+      padding: 10px;
+      margin-top: 10px;
+    }
+
+    .closeButton {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 24px;
+      align-self: flex-end;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+
+    .RulesPopUp {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      max-height: 60vh;
+      background-color: #222;
+      border-top: 2px solid white;
+      padding: 20px;
+      box-shadow: 0 -5px 10px rgba(0,0,0,0.5);
+      transform: translateY(100%);
+      transition: transform 0.3s ease-in-out;
+      z-index: 1000;
+      overflow-y: auto;
+    }
+
+    .RulesPopUp.open {
+      transform: translateY(0);
+    }
+
+    body.light-mode {
+      background-color: #fff;
+      color: #000;
+    }
+
+    body.light-mode .button-container {
+      border-color: #000;
+    }
+
+    body.light-mode .button-container button {
+      color: #000;
+      border-color: #000;
+    }
+
+    body.light-mode .button-container button:hover {
+      background-color: rgba(0, 0, 0, 0.1);
+    }
+
+    body.light-mode #settingsButtonPosition {
+      color: black;
+    }
+
+    body.light-mode .SettingPopUp,
+    body.light-mode .RulesPopUp {
+      background-color: #eee;
+      color: #000;
+      border-color: #000;
+    }
+
+    body.light-mode .closeButton {
+      color: black;
+    }
+
+    /* === NEUES POPUP === */
+    .popup-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+    }
+
+    .popup-content {
+      background-color: #222;
+      padding: 40px;
+      border-radius: 15px;
+      border: 2px solid white;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .popup-content h2 {
+      font-size: 24px;
+      margin-bottom: 20px;
+      color: white;
+    }
+
+    .popup-content button {
+      font-size: 18px;
+      padding: 12px 20px;
+      background: transparent;
+      border: 2px solid white;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+      font-style: italic;
+    }
+
+    .popup-content button:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+  </style>
+</head>
+<body>
+
+  <button id="settingsButtonPosition" onclick="toggleSettingPopUp()">⚙️</button>
+
+  <div class="SettingPopUp" id="settingsSettingPopUp">
+    <button class="closeButton" onclick="toggleSettingPopUp()">❌</button>
+    <div><strong>Settings</strong></div>
+    <button onclick="toggleTheme()" id="themeToggleBtn">🌞 Light Mode</button>
+    <button>Auto-Check for Mistakelimit</button>
+  </div>
+
+  <div class="RulesPopUp" id="rulesPopUp">
+    <button class="closeButton" onclick="toggleRulesPopUp()">❌</button>
+    <div>
+      <h1>Sudoku – Rulebook</h1>
+      <h3>1. Objective</h3>
+      <p>The goal of Sudoku is to fill a 9×9 grid so that every row, every column, and each of the nine 3×3 subgrids (called boxes or blocks) contains all digits from 1 to 9 exactly once.</p>
+      <h3>2. Game Board</h3>
+      <ul>
+        <li>The board consists of 9 rows, 9 columns, and 9 blocks (each 3×3).</li>
+        <li>Some numbers are given at the start.</li>
+        <li>The rest must be filled in by using logic only – no guessing allowed!</li>
+      </ul>
+      <h3>3. Core Rules</h3>
+      <ul>
+        <li>Only once per row</li>
+        <li>Only once per column</li>
+        <li>Only once per 3×3 block</li>
+      </ul>
+      <p>No number may appear more than once in any of those areas.</p>
+    </div>
+  </div>
+
+  <img id="logo" src="whiteLogo.png" alt="Logo">
+  <div class="subtitle"><b>options</b></div>
+  <div class="button-container">
+    <button onclick="toggleRulesPopUp()">Rules</button>
+    <button onclick="openPlayPopup()">Play</button>
+    <a href="createYouOwnSudoku.html">
+      <button>Create</button>
+    </a>
+  </div>
+
+  <!-- === PLAY POPUP === -->
+  <div id="playPopup" class="popup-overlay">
+    <div class="popup-content">
+      <h2>Choose Your Difficulty</h2>
+      <button>Easy</button>
+      <button>Medium</button>
+      <button>Hard</button>
+    </div>
+  </div>
+
+  <script>
+    function toggleSettingPopUp() {
+      const SettingPopUp = document.getElementById("settingsSettingPopUp");
+      SettingPopUp.classList.toggle("open");
+    }
+
+    function toggleRulesPopUp() {
+      const rulesPopUp = document.getElementById("rulesPopUp");
+      rulesPopUp.classList.toggle("open");
+    }
+
+    function toggleTheme() {
+      const body = document.body;
+      const image = document.getElementById("logo");
+      const themeBtn = document.getElementById("themeToggleBtn");
+
+      body.classList.toggle("light-mode");
+
+      if (body.classList.contains("light-mode")) {
+        image.src = "blackLogo.png";
+        themeBtn.textContent = "🌙 Dark Mode";
+      } else {
+        image.src = "whiteLogo.png";
+        themeBtn.textContent = "🌞 Light Mode";
+      }
+    }
+
+    function openPlayPopup() {
+      document.getElementById("playPopup").style.display = "flex";
+    }
+
+    // Schließen des Popups beim Klicken außerhalb
+    window.addEventListener('click', function(event) {
+      const popup = document.getElementById("playPopup");
+      if (event.target === popup) {
+        popup.style.display = "none";
+      }
+    });
+  </script>
+</body>
+</html>
