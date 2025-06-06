@@ -53,7 +53,7 @@ function getQueryParam(param) {
 // playfield
 async function loadPuzzle(difficulty) {
   try {
-    const response = await fetch(`${difficulty}.json`, { mode: 'no-cors', method: "get" });
+    const response = await fetch(`${difficulty}.json`);
     const puzzles = await response.json();
     const random = Math.floor(Math.random() * puzzles.length);
     return puzzles[random].puzzle;
@@ -78,16 +78,21 @@ function createPlayfield(cells) {
     const col = i % 9;
     if (col === 2 || col === 5) input.classList.add('thick-right');
     if (row === 2 || row === 5) input.classList.add('thick-bottom');
+
+    input.addEventListener('focus', () => {
+      highlightRelatedCells(i);
+    });
+
     grid.appendChild(input);
     cells.push(input);
   }
 }
 
-cells.forEach((cell, index) => { // TODO: add the eventlistener when you create the playfield
-  cell.addEventListener('focus', () => {
-    highlightRelatedCells(index);
-  });
-});
+// cells.forEach((cell, index) => { // TODO: add the eventlistener when you create the playfield
+//   cell.addEventListener('focus', () => {
+//     highlightRelatedCells(index);
+//   });
+// });
 
 // timer util
 let seconds = 0;
