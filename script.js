@@ -1,11 +1,27 @@
+
 // global variables
-const grid = document.getElementById('sudokuGrid');
 const cells = [];
 
 let selectedCell = null;
 let noteMode = false;
 const history = [];
 const future = [];
+
+// code to run on start
+(function () {
+  "use strict";
+
+  var observer = new MutationObserver(function () {
+    if (document.body) {
+      // It exists now
+      createPlayfield(cells);
+      addInputEventListeners()
+      addEventListeners();
+      observer.disconnect();
+    }
+  });
+  observer.observe(document.documentElement, { childList: true });
+})();
 
 // settings
 function toggleSettingPopUp() {
@@ -37,7 +53,7 @@ function getQueryParam(param) {
 // playfield
 async function loadPuzzle(difficulty) {
   try {
-    const response = await fetch(`${difficulty}.json`);
+    const response = await fetch(`${difficulty}.json`, { mode: 'no-cors', method: "get" });
     const puzzles = await response.json();
     const random = Math.floor(Math.random() * puzzles.length);
     return puzzles[random].puzzle;
@@ -47,7 +63,8 @@ async function loadPuzzle(difficulty) {
   }
 }
 
-function createPlayfield() {
+function createPlayfield(cells) {
+  grid = document.getElementById('sudokuGrid');
   for (let i = 0; i < 81; i++) {
     const input = document.createElement('input');
     input.type = 'text';
@@ -161,67 +178,7 @@ function highlightRelatedCells(index) { // TODO: use specific highlighting funct
   }
 }
 
-// eventlisteners
-input.addEventListener('click', () => {
-  // Vorherige Highlights entfernen
-  cells.forEach(cell => cell.classList.remove('highlight'));
-
-  const row = Math.floor(i / 9);
-  const col = i % 9;
-
-  // Zeile und Spalte hervorheben
-  for (let j = 0; j < 9; j++) {
-    cells[row * 9 + j].classList.add('highlight'); // Zeile
-    cells[j * 9 + col].classList.add('highlight'); // Spalte
-  }
-
-  // 3x3 Block hervorheben
-  const startRow = Math.floor(row / 3) * 3;
-  const startCol = Math.floor(col / 3) * 3;
-
-  for (let r = 0; r < 3; r++) {
-    for (let c = 0; c < 3; c++) {
-      const blockIndex = (startRow + r) * 9 + (startCol + c);
-      cells[blockIndex].classList.add('highlight');
-    }
-  }
-});
-
-window.addEventListener('load', async () => {
-  const difficulty = getQueryParam('difficulty') || 'easy';
-  const puzzle = await loadPuzzle(difficulty);
-  puzzle.forEach((val, idx) => {
-    const cell = cells[idx];
-    if (val !== 0) {
-      cell.value = val;
-      cell.readOnly = true;
-      cell.classList.add('prefilled');
-    }
-  });
-  startTimer();
-});
-
-document.getElementById("pauseButton").addEventListener("click", () => {
-  clearInterval(timerInterval);
-  timerInterval = null;
-  const mins = String(Math.floor(seconds / 60)).padStart(2, '0');
-  const secs = String(seconds % 60).padStart(2, '0');
-  const emptyCells = [...document.querySelectorAll('#sudokuGrid input')].filter(cell => cell.value === '').length;
-  document.getElementById("pauseInfo").textContent = `⏱️ Spielzeit: ${mins}:${secs} | 🩹 Offene Felder: ${emptyCells}`;
-  document.getElementById("pausePopup").style.display = "flex";
-});
-
-document.addEventListener('focusin', (e) => {
-  if (e.target.matches('#sudokuGrid input') && !e.target.readOnly) {
-    selectedCell = e.target;
-  }
-});
-
-document.getElementById("noteToggleButton").addEventListener("click", () => {
-  noteMode = !noteMode;
-  document.getElementById("noteToggleButton").textContent = noteMode ? "🗑️ notes on" : "🗑️ notes off";
-});
-
+// cell input/clear
 function insertNumber(number) { // TODO: give each cell an id and just pass the id to this function
   if (!selectedCell) return;
 
@@ -248,45 +205,111 @@ function insertNumber(number) { // TODO: give each cell an id and just pass the 
   }
 }
 
-document.addEventListener('keydown', (event) => {
-  if (selectedCell && /^[1-9]$/.test(event.key)) {
-    event.preventDefault();
-    insertNumber(event.key);
-  }
-  if (selectedCell && (event.key === 'Backspace' || event.key === 'Delete')) {
-    event.preventDefault();
-    saveState(selectedCell);
-    selectedCell.value = ''; // TODO: add "clearCell" function
-    selectedCell.placeholder = '';
-    selectedCell.dataset.notes = '';
-  }
-});
+// eventlisteners
+function addEventListeners() {
+  window.addEventListener('load', async () => {
+    const difficulty = getQueryParam('difficulty') || 'easy';
+    const puzzle = await loadPuzzle(difficulty);
+    puzzle.forEach((val, idx) => {
+      const cell = cells[idx];
+      if (val !== 0) {
+        cell.value = val;
+        cell.readOnly = true;
+        cell.classList.add('prefilled');
+      }
+    });
+    startTimer();
+  });
 
-document.getElementById("eraseButton").addEventListener("click", () => {
-  if (selectedCell && !selectedCell.readOnly) {
-    saveState(selectedCell);
-    selectedCell.value = '';
-    selectedCell.placeholder = '';
-    selectedCell.dataset.notes = '';
-  }
-});
+  document.getElementById("pauseButton").addEventListener("click", () => {
+    clearInterval(timerInterval);
+    timerInterval = null;
+    const mins = String(Math.floor(seconds / 60)).padStart(2, '0');
+    const secs = String(seconds % 60).padStart(2, '0');
+    const emptyCells = [...document.querySelectorAll('#sudokuGrid input')].filter(cell => cell.value === '').length;
+    document.getElementById("pauseInfo").textContent = `⏱️ Spielzeit: ${mins}:${secs} | 🩹 Offene Felder: ${emptyCells}`;
+    document.getElementById("pausePopup").style.display = "flex";
+  });
 
-document.getElementById("resetButton").addEventListener("click", () => {
-  document.querySelectorAll('#sudokuGrid input').forEach(cell => {
-    if (!cell.readOnly) {
-      saveState(cell);
-      cell.value = '';
-      cell.placeholder = '';
-      cell.dataset.notes = '';
+  document.addEventListener('focusin', (e) => {
+    if (e.target.matches('#sudokuGrid input') && !e.target.readOnly) {
+      selectedCell = e.target;
     }
   });
-});
 
-document.getElementById("undoButton").addEventListener("click", () => {
-  restoreState(history, future);
-});
+  document.getElementById("noteToggleButton").addEventListener("click", () => {
+    noteMode = !noteMode;
+    document.getElementById("noteToggleButton").textContent = noteMode ? "🗑️ notes on" : "🗑️ notes off";
+  });
 
-document.getElementById("redoButton").addEventListener("click", () => {
-  restoreState(future, history);
-});
+  document.addEventListener('keydown', (event) => {
+    if (selectedCell && /^[1-9]$/.test(event.key)) {
+      event.preventDefault();
+      insertNumber(event.key);
+    }
+    if (selectedCell && (event.key === 'Backspace' || event.key === 'Delete')) {
+      event.preventDefault();
+      saveState(selectedCell);
+      selectedCell.value = ''; // TODO: add "clearCell" function
+      selectedCell.placeholder = '';
+      selectedCell.dataset.notes = '';
+    }
+  });
 
+  document.getElementById("eraseButton").addEventListener("click", () => {
+    if (selectedCell && !selectedCell.readOnly) {
+      saveState(selectedCell);
+      selectedCell.value = '';
+      selectedCell.placeholder = '';
+      selectedCell.dataset.notes = '';
+    }
+  });
+
+  document.getElementById("resetButton").addEventListener("click", () => {
+    document.querySelectorAll('#sudokuGrid input').forEach(cell => {
+      if (!cell.readOnly) {
+        saveState(cell);
+        cell.value = '';
+        cell.placeholder = '';
+        cell.dataset.notes = '';
+      }
+    });
+  });
+
+  document.getElementById("undoButton").addEventListener("click", () => {
+    restoreState(history, future);
+  });
+
+  document.getElementById("redoButton").addEventListener("click", () => {
+    restoreState(future, history);
+  });
+}
+
+function addInputEventListeners() {
+  cells.forEach(cell => {
+    // Vorherige Highlights entfernen
+    cell.classList.remove('highlight')
+
+    cell.addEventListener('click', () => {
+      const row = Math.floor(i / 9);
+      const col = i % 9;
+
+      // Zeile und Spalte hervorheben
+      for (let j = 0; j < 9; j++) {
+        cells[row * 9 + j].classList.add('highlight'); // Zeile
+        cells[j * 9 + col].classList.add('highlight'); // Spalte
+      }
+
+      // 3x3 Block hervorheben
+      const startRow = Math.floor(row / 3) * 3;
+      const startCol = Math.floor(col / 3) * 3;
+
+      for (let r = 0; r < 3; r++) {
+        for (let c = 0; c < 3; c++) {
+          const blockIndex = (startRow + r) * 9 + (startCol + c);
+          cells[blockIndex].classList.add('highlight');
+        }
+      }
+    });
+  });
+}
