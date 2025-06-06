@@ -1,6 +1,7 @@
 <!-- playfiled with colored cells -->
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>Sudoku</title>
@@ -12,11 +13,12 @@
     }
 
     .highlight {
-      background-color: #d3d3d3 !important; /* hellgrau */
+      background-color: #d3d3d3 !important;
+      /* hellgrau */
     }
-
   </style>
 </head>
+
 <body>
   <button id="settingsButtonPosition" onclick="toggleSettingPopUp()">⚙️</button>
 
@@ -111,33 +113,33 @@
     const grid = document.getElementById('sudokuGrid');
     const cells = [];
     function getCellIndex(cell) {
-  return cells.indexOf(cell);
-}
-
-function highlightRelatedCells(index) {
-  // Erst alle vorherigen Highlights entfernen
-  cells.forEach(cell => cell.classList.remove('highlight'));
-
-  const row = Math.floor(index / 9);
-  const col = index % 9;
-
-  // Zeile und Spalte hervorheben
-  for (let i = 0; i < 9; i++) {
-    cells[row * 9 + i].classList.add('highlight'); // Zeile
-    cells[i * 9 + col].classList.add('highlight'); // Spalte
-  }
-
-  // 3x3 Block berechnen
-  const blockRowStart = Math.floor(row / 3) * 3;
-  const blockColStart = Math.floor(col / 3) * 3;
-
-  for (let r = 0; r < 3; r++) {
-    for (let c = 0; c < 3; c++) {
-      const blockIndex = (blockRowStart + r) * 9 + (blockColStart + c);
-      cells[blockIndex].classList.add('highlight');
+      return cells.indexOf(cell);
     }
-  }
-}
+
+    function highlightRelatedCells(index) {
+      // Erst alle vorherigen Highlights entfernen
+      cells.forEach(cell => cell.classList.remove('highlight'));
+
+      const row = Math.floor(index / 9);
+      const col = index % 9;
+
+      // Zeile und Spalte hervorheben
+      for (let i = 0; i < 9; i++) {
+        cells[row * 9 + i].classList.add('highlight'); // Zeile
+        cells[i * 9 + col].classList.add('highlight'); // Spalte
+      }
+
+      // 3x3 Block berechnen
+      const blockRowStart = Math.floor(row / 3) * 3;
+      const blockColStart = Math.floor(col / 3) * 3;
+
+      for (let r = 0; r < 3; r++) {
+        for (let c = 0; c < 3; c++) {
+          const blockIndex = (blockRowStart + r) * 9 + (blockColStart + c);
+          cells[blockIndex].classList.add('highlight');
+        }
+      }
+    }
 
     for (let i = 0; i < 81; i++) {
       const input = document.createElement('input');
@@ -155,10 +157,10 @@ function highlightRelatedCells(index) {
       cells.push(input);
     }
     cells.forEach((cell, index) => {
-  cell.addEventListener('focus', () => {
-    highlightRelatedCells(index);
-  });
-});
+      cell.addEventListener('focus', () => {
+        highlightRelatedCells(index);
+      });
+    });
 
     input.addEventListener('click', () => {
       // Vorherige Highlights entfernen
@@ -349,4 +351,5 @@ function highlightRelatedCells(index) {
     });
   </script>
 </body>
+
 </html>
