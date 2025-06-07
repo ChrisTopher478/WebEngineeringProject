@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sudoku</title>
+  <link rel="stylesheet" href="Sudoku.css" />
+  <style>
+    body {
+      margin: 0;
+      background-color: #111;
+      color: white;
+      font-family: 'Courier New', monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      transition: background-color 0.3s, color 0.3s;
+      position: relative;
+    }
+
+    .subtitle {
+      font-size: 28px;
+      margin: 20px 0;
+      font-style: italic;
+    }
+
+    .button-column-fixed {
+      position: absolute;
+      left: calc(50% - 350px);
+      top: 65%;
+      transform: translateY(-60%);
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .button-column-fixed button {
+      background: transparent;
+      border: 2px solid white;
+      color: white;
+      font-size: 18px;
+      padding: 10px 16px;
+      cursor: pointer;
+      border-radius: 10px;
+      transition: background-color 0.2s;
+    }
+
+    .button-column-fixed button:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .sudoku-grid {
+      display: grid;
+      grid-template-columns: repeat(9, 40px);
+      grid-template-rows: repeat(9, 40px);
+      gap: 0;
+      border: 2px solid white;
+      padding: 10px;
+      border-radius: 10px;
+      background-color: #222;
+      margin-bottom: 80px;
+    }
+
+    .sudoku-grid input {
+      width: 38px;
+      height: 38px;
+      text-align: center;
+      font-size: 20px;
+      font-family: 'Courier New', monospace;
+      color: white;
+      background-color: #111;
+      border: 1px solid #555;
+      outline: none;
+      box-sizing: border-box;
+      caret-color: transparent;
+    }
+
+    .sudoku-grid input.thick-right {
+      border-right: 3px solid white;
+    }
+
+    .sudoku-grid input.thick-bottom {
+      border-bottom: 3px solid white;
+    }
+
+    .sudoku-grid input:focus {
+      border-color: #0ff;
+      background-color: #222;
+    }
+
+    #logo {
+      width: 500px;
+      height: 900px;
+      margin-bottom: -80px;
+      margin-top: -70px;
+    }
+
+    #settingsButtonPosition {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: none;
+      border: none;
+      font-size: 30px;
+      cursor: pointer;
+      color: white;
+    }
+
+    .SettingPopUp {
+      position: fixed;
+      top: 0;
+      right: 0;
+      height: 100vh;
+      width: 300px;
+      background-color: #222;
+      border-left: 2px solid white;
+      padding: 20px;
+      box-shadow: -5px 0 10px rgba(0,0,0,0.5);
+      flex-direction: column;
+      z-index: 1000;
+      transform: translateX(100%);
+      transition: transform 0.3s ease-in-out;
+      display: flex;
+    }
+
+    .SettingPopUp.open {
+      transform: translateX(0);
+    }
+
+    .SettingPopUp button {
+      font-size: 18px;
+      padding: 10px;
+      margin-top: 10px;
+    }
+
+    .closeButton {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 24px;
+      align-self: flex-end;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+
+    body.light-mode {
+      background-color: #fff;
+      color: #000;
+    }
+
+    body.light-mode .sudoku-grid {
+      background-color: #ddd;
+      border-color: black;
+    }
+
+    body.light-mode .sudoku-grid input {
+      color: black;
+      background-color: #fff;
+      border-color: #aaa;
+    }
+
+    body.light-mode .sudoku-grid input.thick-right {
+      border-right: 3px solid black;
+    }
+
+    body.light-mode .sudoku-grid input.thick-bottom {
+      border-bottom: 3px solid black;
+    }
+
+    body.light-mode .sudoku-grid input:focus {
+      border-color: #007acc;
+      background-color: #eee;
+    }
+
+    body.light-mode #settingsButtonPosition {
+      color: black;
+    }
+
+    body.light-mode .SettingPopUp {
+      background-color: #eee;
+      color: #000;
+      border-left-color: #000;
+    }
+
+    body.light-mode .closeButton {
+      color: black;
+    }
+
+    body.light-mode .button-column-fixed button {
+      border-color: black;
+      color: black;
+    }
+
+    body.light-mode .button-column-fixed button:hover {
+      background-color: rgba(0, 0, 0, 0.1);
+    }
+
+    .number-keyboard {
+      display: grid;
+      grid-template-columns: repeat(3, 60px);
+      gap: 10px;
+      position: absolute;
+      left: calc(50% + 220px);
+      top: 43%;
+      transform: translateY(-50%);
+    }
+
+    .number-keyboard button {
+      font-size: 20px;
+      padding: 12px;
+      border-radius: 10px;
+      border: 2px solid white;
+      background-color: transparent;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .number-keyboard button:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    body.light-mode .number-keyboard button {
+      border-color: black;
+      color: black;
+    }
+
+    body.light-mode .number-keyboard button:hover {
+      background-color: rgba(0, 0, 0, 0.1);
+    }
+  </style>
+</head>
+<body>
+  <button id="settingsButtonPosition" onclick="toggleSettingPopUp()">⚙️</button>
+
+  <div class="SettingPopUp" id="settingsSettingPopUp">
+    <button class="closeButton" onclick="toggleSettingPopUp()">❌</button>
+    <div><strong>Settings</strong></div>
+    <button onclick="toggleTheme()" id="themeToggleBtn">🌞 Light Mode</button>
+    <button>Auto-Check for Mistakelimit</button>
+  </div>
+
+  <img id="logo" src="whiteLogo.png" alt="Logo">
+
+  <div class="button-column-fixed">
+    <div class="split-buttons">
+      <button>⬅️ </button>
+      <button>➡️ </button>
+    </div>
+    <button>erase fild</button>
+    <button>reset game</button>
+    <!-- <button>save</button> -->
+     <button>import</button>
+     <button>export</button>
+    <button>play</button>
+  </div>
+
+  <div class="sudoku-grid" id="sudokuGrid"></div>
+
+  <div class="number-keyboard">
+    <button onclick="insertNumber('1')">1</button>
+    <button onclick="insertNumber('2')">2</button>
+    <button onclick="insertNumber('3')">3</button>
+    <button onclick="insertNumber('4')">4</button>
+    <button onclick="insertNumber('5')">5</button>
+    <button onclick="insertNumber('6')">6</button>
+    <button onclick="insertNumber('7')">7</button>
+    <button onclick="insertNumber('8')">8</button>
+    <button onclick="insertNumber('9')">9</button>
+  </div>
+
+  <script>
+    function toggleSettingPopUp() {
+      const SettingPopUp = document.getElementById("settingsSettingPopUp");
+      SettingPopUp.classList.toggle("open");
+    }
+
+    function toggleTheme() {
+      const body = document.body;
+      const image = document.getElementById("logo");
+      const themeBtn = document.getElementById("themeToggleBtn");
+
+      body.classList.toggle("light-mode");
+
+      if (body.classList.contains("light-mode")) {
+        image.src = "blackLogo.png";
+        themeBtn.textContent = "🌙 Dark Mode";
+      } else {
+        image.src = "whiteLogo.png";
+        themeBtn.textContent = "🌞 Light Mode";
+      }
+    }
+
+    const grid = document.getElementById('sudokuGrid');
+    for (let i = 0; i < 81; i++) {
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.maxLength = 1;
+      input.pattern = "[1-9]";
+      input.oninput = () => {
+        input.value = input.value.replace(/[^1-9]/g, '');
+      };
+
+      const row = Math.floor(i / 9);
+      const col = i % 9;
+
+      if (col === 2 || col === 5) input.classList.add('thick-right');
+      if (row === 2 || row === 5) input.classList.add('thick-bottom');
+
+      grid.appendChild(input);
+    }
+
+    let selectedCell = null;
+
+    document.querySelectorAll('#sudokuGrid input').forEach(input => {
+      input.addEventListener('focus', () => {
+        selectedCell = input;
+      });
+    });
+
+    function insertNumber(number) {
+      if (selectedCell) {
+        selectedCell.value = number;
+      }
+    }
+  </script>
+</body>
+</html>
