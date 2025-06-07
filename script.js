@@ -355,6 +355,20 @@ function addEventListeners() {
       checkForAllDuplicates();
       checkAgainstSolution();
     }
+    switch (event.key) {
+      case "ArrowLeft":
+        // selectedCell to left
+        break;
+      case "ArrowRight":
+        // selectedCell to right
+        break;
+      case "ArrowUp":
+        // selectedCell to up
+        break;
+      case "ArrowDown":
+        // selectedCell to down
+        break;
+    }
   });
 
   document.getElementById("eraseButton").addEventListener("click", () => {
