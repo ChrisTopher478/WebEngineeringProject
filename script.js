@@ -1,11 +1,18 @@
-
 // global variables
 const cells = [];
 
 let selectedCell = null;
 let noteMode = false;
+let highlightEnabled = true;
+let duplicateCheckEnabled = true;
+let currentSolution = []; // NEW
 const history = [];
 const future = [];
+let mistakeCheckEnabled = true;
+let seconds = 0;
+let timerInterval;
+
+
 
 // code to run on start
 (function () {
@@ -13,9 +20,8 @@ const future = [];
 
   var observer = new MutationObserver(function () {
     if (document.body) {
-      // It exists now
       createPlayfield(cells);
-      addInputEventListeners()
+      addInputEventListeners();
       addEventListeners();
       observer.disconnect();
     }
@@ -23,7 +29,6 @@ const future = [];
   observer.observe(document.documentElement, { childList: true });
 })();
 
-// settings
 function toggleSettingPopUp() {
   const SettingPopUp = document.getElementById("settingsSettingPopUp");
   SettingPopUp.classList.toggle("open");
@@ -44,33 +49,61 @@ function toggleTheme() {
     themeBtn.textContent = "🌞 Light Mode";
   }
 }
-// util
+
+function toggleHighlighting() {
+  highlightEnabled = !highlightEnabled;
+  const button = document.getElementById("highlightToggleBtn");
+  button.textContent = `Backround highlighting: ${highlightEnabled ? 'on' : 'off'}`;
+  if (!highlightEnabled) {
+    cells.forEach(cell => cell.classList.remove('highlight'));
+  }
+  if (highlightEnabled && selectedCell) {
+    const index = cells.indexOf(selectedCell);
+    if (index !== -1) {
+      highlightRelatedCells(index);
+    }
+  }
+}
+
+function toggleDuplicateCheck() {
+  duplicateCheckEnabled = !duplicateCheckEnabled;
+  const button = document.getElementById("duplicateToggleBtn");
+  button.textContent = `Check for duplicates: ${duplicateCheckEnabled ? 'on' : 'off'}`;
+  if (!duplicateCheckEnabled) {
+    cells.forEach(cell => cell.classList.remove('duplicate'));
+  } else {
+    checkForAllDuplicates();
+  }
+}
+
 function getQueryParam(param) {
   const urlParams = new URLSearchParams(window.location.search);
   return urlParams.get(param);
 }
 
-// playfield
 async function loadPuzzle(difficulty) {
   try {
     const response = await fetch(`${difficulty}.json`);
     const puzzles = await response.json();
-    const random = Math.floor(Math.random() * puzzles.length);
-    return puzzles[random].puzzle;
+    const index = Math.floor(Math.random() * puzzles.length / 2);
+    const puzzleEntry = puzzles[index * 2];
+    const solutionEntry = puzzles[index * 2 + 1];
+    currentSolution = solutionEntry.solution;
+    return puzzleEntry.puzzle;
   } catch (err) {
     console.error("Fehler beim Laden des Puzzles:", err);
-    return new Array(81).fill(0);// ToDo: make error message
+    return new Array(81).fill(0);
   }
 }
 
 function createPlayfield(cells) {
-  grid = document.getElementById('sudokuGrid');
+  const grid = document.getElementById('sudokuGrid');
   for (let i = 0; i < 81; i++) {
     const input = document.createElement('input');
     input.type = 'text';
     input.maxLength = 1;
     input.pattern = "[1-9]";
-    input.id = "cell" + i
+    input.id = "cell" + i;
     input.oninput = () => {
       input.value = input.value.replace(/[^1-9]/g, '');
     };
@@ -81,6 +114,7 @@ function createPlayfield(cells) {
 
     input.addEventListener('focus', () => {
       highlightRelatedCells(i);
+      checkForAllDuplicates();
     });
 
     grid.appendChild(input);
@@ -88,15 +122,19 @@ function createPlayfield(cells) {
   }
 }
 
-// cells.forEach((cell, index) => { // TODO: add the eventlistener when you create the playfield
-//   cell.addEventListener('focus', () => {
-//     highlightRelatedCells(index);
-//   });
-// });
+function checkAgainstSolution() {
+  if (!mistakeCheckEnabled || !currentSolution.length) return;
 
-// timer util
-let seconds = 0;
-let timerInterval;
+  cells.forEach((cell, idx) => {
+    cell.classList.remove('wrong');
+    if (!cell.readOnly && cell.value) {
+      const correctValue = currentSolution[idx];
+      if (parseInt(cell.value) !== correctValue) {
+        cell.classList.add('wrong');
+      }
+    }
+  });
+}
 
 function startTimer() {
   const display = document.getElementById("timerDisplay");
@@ -108,7 +146,6 @@ function startTimer() {
   }, 1000);
 }
 
-// pausePopup
 function resumeGame() {
   document.getElementById("pausePopup").style.display = "none";
   startTimer();
@@ -121,60 +158,39 @@ function exitGame() {
   }
 }
 
-// TODO: actually save stuff
 function saveForLater() {
   alert("Spielstand gespeichert. (Hier könnte z. B. localStorage verwendet werden.)");
 }
 
-// state util
 function saveState(cell) {
   if (!cell || cell.readOnly) return;
-  history.push({
-    cell,
-    value: cell.value,
-    placeholder: cell.placeholder,
-    notes: cell.dataset.notes
-  });
-  future.length = 0; // awful way to empty array
+  history.push({ cell, value: cell.value, placeholder: cell.placeholder, notes: cell.dataset.notes });
+  future.length = 0;
 }
 
 function restoreState(stackFrom, stackTo) {
   const state = stackFrom.pop();
   if (state) {
-    stackTo.push({
-      cell: state.cell,
-      value: state.cell.value,
-      placeholder: state.cell.placeholder,
-      notes: state.cell.dataset.notes
-    });
+    stackTo.push({ cell: state.cell, value: state.cell.value, placeholder: state.cell.placeholder, notes: state.cell.dataset.notes });
     state.cell.value = state.value;
     state.cell.placeholder = state.placeholder;
     state.cell.dataset.notes = state.notes;
+    checkForAllDuplicates();
+    checkAgainstSolution();
   }
 }
 
-// cell highlighting
-function highlightRow(cell, type) { }
-function highlightColumn(cell, type) { }
-function highlightBlock(cell, type) { }
-
-function highlightRelatedCells(index) { // TODO: use specific highlighting functions to reuse it for error highlighting
-  // Erst alle vorherigen Highlights entfernen
+function highlightRelatedCells(index) {
+  if (!highlightEnabled) return;
   cells.forEach(cell => cell.classList.remove('highlight'));
-
-  const row = Math.floor(index / 9); // TODO: row and column can be calculated once and added to cell on "createPlayfield" function
+  const row = Math.floor(index / 9);
   const col = index % 9;
-
-  // Zeile und Spalte hervorheben
   for (let i = 0; i < 9; i++) {
-    cells[row * 9 + i].classList.add('highlight'); // Zeile
-    cells[i * 9 + col].classList.add('highlight'); // Spalte
+    cells[row * 9 + i].classList.add('highlight');
+    cells[i * 9 + col].classList.add('highlight');
   }
-
-  // 3x3 Block berechnen
   const blockRowStart = Math.floor(row / 3) * 3;
   const blockColStart = Math.floor(col / 3) * 3;
-
   for (let r = 0; r < 3; r++) {
     for (let c = 0; c < 3; c++) {
       const blockIndex = (blockRowStart + r) * 9 + (blockColStart + c);
@@ -183,12 +199,54 @@ function highlightRelatedCells(index) { // TODO: use specific highlighting funct
   }
 }
 
-// cell input/clear
-function insertNumber(number) { // TODO: give each cell an id and just pass the id to this function
+function checkForAllDuplicates() {
+  if (!duplicateCheckEnabled) return;
+  cells.forEach(cell => cell.classList.remove('duplicate'));
+  const positionsByValue = {};
+  for (let i = 0; i < 81; i++) {
+    const val = cells[i].value;
+    if (!val) continue;
+    if (!positionsByValue[val]) positionsByValue[val] = [];
+    positionsByValue[val].push(i);
+  }
+  for (const val in positionsByValue) {
+    const positions = positionsByValue[val];
+    for (let i = 0; i < positions.length; i++) {
+      for (let j = i + 1; j < positions.length; j++) {
+        const idx1 = positions[i];
+        const idx2 = positions[j];
+        const row1 = Math.floor(idx1 / 9);
+        const col1 = idx1 % 9;
+        const row2 = Math.floor(idx2 / 9);
+        const col2 = idx2 % 9;
+        const sameRow = row1 === row2;
+        const sameCol = col1 === col2;
+        const sameBox = Math.floor(row1 / 3) === Math.floor(row2 / 3) && Math.floor(col1 / 3) === Math.floor(col2 / 3);
+        if (sameRow || sameCol || sameBox) {
+          cells[idx1].classList.add('duplicate');
+          cells[idx2].classList.add('duplicate');
+        }
+      }
+    }
+  }
+}
+
+function toggleMistakeCheck() {
+  mistakeCheckEnabled = !mistakeCheckEnabled;
+
+  const button = document.querySelector("#settingsSettingPopUp button:nth-child(4)");
+  button.textContent = `Check for mistake: ${mistakeCheckEnabled ? 'on' : 'off'}`;
+
+  if (!mistakeCheckEnabled) {
+    cells.forEach(cell => cell.classList.remove('wrong'));
+  } else {
+    checkAgainstSolution();
+  }
+}
+
+function insertNumber(number) {
   if (!selectedCell) return;
-
   saveState(selectedCell);
-
   if (noteMode) {
     if (!selectedCell.dataset.notes) {
       selectedCell.dataset.notes = number;
@@ -208,9 +266,10 @@ function insertNumber(number) { // TODO: give each cell an id and just pass the 
     selectedCell.placeholder = '';
     selectedCell.dataset.notes = '';
   }
+  checkForAllDuplicates();
+  checkAgainstSolution();
 }
 
-// eventlisteners
 function addEventListeners() {
   window.addEventListener('load', async () => {
     const difficulty = getQueryParam('difficulty') || 'easy';
@@ -255,9 +314,11 @@ function addEventListeners() {
     if (selectedCell && (event.key === 'Backspace' || event.key === 'Delete')) {
       event.preventDefault();
       saveState(selectedCell);
-      selectedCell.value = ''; // TODO: add "clearCell" function
+      selectedCell.value = '';
       selectedCell.placeholder = '';
       selectedCell.dataset.notes = '';
+      checkForAllDuplicates();
+      checkAgainstSolution();
     }
   });
 
@@ -267,11 +328,13 @@ function addEventListeners() {
       selectedCell.value = '';
       selectedCell.placeholder = '';
       selectedCell.dataset.notes = '';
+      checkForAllDuplicates();
+      checkAgainstSolution();
     }
   });
 
   document.getElementById("resetButton").addEventListener("click", () => {
-    document.querySelectorAll('#sudokuGrid input').forEach(cell => {
+    document.querySelectorAll('#sudokuGrid input').forEach((cell, i) => {
       if (!cell.readOnly) {
         saveState(cell);
         cell.value = '';
@@ -279,6 +342,8 @@ function addEventListeners() {
         cell.dataset.notes = '';
       }
     });
+    checkForAllDuplicates();
+    checkAgainstSolution();
   });
 
   document.getElementById("undoButton").addEventListener("click", () => {
@@ -291,24 +356,18 @@ function addEventListeners() {
 }
 
 function addInputEventListeners() {
-  cells.forEach(cell => {
-    // Vorherige Highlights entfernen
-    cell.classList.remove('highlight')
-
+  cells.forEach((cell, i) => {
+    cell.classList.remove('highlight');
     cell.addEventListener('click', () => {
+      if (!highlightEnabled) return;
       const row = Math.floor(i / 9);
       const col = i % 9;
-
-      // Zeile und Spalte hervorheben
       for (let j = 0; j < 9; j++) {
-        cells[row * 9 + j].classList.add('highlight'); // Zeile
-        cells[j * 9 + col].classList.add('highlight'); // Spalte
+        cells[row * 9 + j].classList.add('highlight');
+        cells[j * 9 + col].classList.add('highlight');
       }
-
-      // 3x3 Block hervorheben
       const startRow = Math.floor(row / 3) * 3;
       const startCol = Math.floor(col / 3) * 3;
-
       for (let r = 0; r < 3; r++) {
         for (let c = 0; c < 3; c++) {
           const blockIndex = (startRow + r) * 9 + (startCol + c);
