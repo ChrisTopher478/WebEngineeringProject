@@ -103,12 +103,16 @@ function createPlayfield(cells) {
     input.type = 'text';
     input.maxLength = 1;
     input.pattern = "[1-9]";
-    input.id = "cell" + i;
+    input.id = `cell${i}`;
     input.oninput = () => {
       input.value = input.value.replace(/[^1-9]/g, '');
     };
     const row = Math.floor(i / 9);
     const col = i % 9;
+    // calculate Box index
+    input.classList.add(`row${row}`)
+    input.classList.add(`col${col}`)
+    // input.classList.add(`box${box}`)
     if (col === 2 || col === 5) input.classList.add('thick-right');
     if (row === 2 || row === 5) input.classList.add('thick-bottom');
 
@@ -202,31 +206,62 @@ function highlightRelatedCells(index) {
 function checkForAllDuplicates() {
   if (!duplicateCheckEnabled) return;
   cells.forEach(cell => cell.classList.remove('duplicate'));
-  const positionsByValue = {};
-  for (let i = 0; i < 81; i++) {
-    const val = cells[i].value;
-    if (!val) continue;
-    if (!positionsByValue[val]) positionsByValue[val] = [];
-    positionsByValue[val].push(i);
+  checkRows();
+  checkColumn();
+  checkBlocks();
+  // const positionsByValue = {};
+  // for (let i = 0; i < 81; i++) {
+  //   const val = cells[i].value;
+  //   if (!val) continue;
+  //   if (!positionsByValue[val]) positionsByValue[val] = [];
+  //   positionsByValue[val].push(i);
+  // }
+  // for (const val in positionsByValue) {
+  //   const positions = positionsByValue[val];
+  //   for (let i = 0; i < positions.length; i++) {
+  //     for (let j = i + 1; j < positions.length; j++) {
+  //       const idx1 = positions[i];
+  //       const idx2 = positions[j];
+  //       const row1 = Math.floor(idx1 / 9);
+  //       const col1 = idx1 % 9;
+  //       const row2 = Math.floor(idx2 / 9);
+  //       const col2 = idx2 % 9;
+  //       const sameRow = row1 === row2;
+  //       const sameCol = col1 === col2;
+  //       const sameBox = Math.floor(row1 / 3) === Math.floor(row2 / 3) && Math.floor(col1 / 3) === Math.floor(col2 / 3);
+  //       if (sameRow || sameCol || sameBox) {
+  //         cells[idx1].classList.add('duplicate');
+  //         cells[idx2].classList.add('duplicate');
+  //       }
+  //     }
+  //   }
+  // }
+}
+
+function checkRows() {
+  for (let i = 0; i > 9; i++) {
+    let row = document.getElementsByClassName(`row${i}`)
+    // logic to check duplicates
+    if (duplicatesFound) {
+      highlightRow(i);
+    }
   }
-  for (const val in positionsByValue) {
-    const positions = positionsByValue[val];
-    for (let i = 0; i < positions.length; i++) {
-      for (let j = i + 1; j < positions.length; j++) {
-        const idx1 = positions[i];
-        const idx2 = positions[j];
-        const row1 = Math.floor(idx1 / 9);
-        const col1 = idx1 % 9;
-        const row2 = Math.floor(idx2 / 9);
-        const col2 = idx2 % 9;
-        const sameRow = row1 === row2;
-        const sameCol = col1 === col2;
-        const sameBox = Math.floor(row1 / 3) === Math.floor(row2 / 3) && Math.floor(col1 / 3) === Math.floor(col2 / 3);
-        if (sameRow || sameCol || sameBox) {
-          cells[idx1].classList.add('duplicate');
-          cells[idx2].classList.add('duplicate');
-        }
-      }
+}
+function checkColumn() {
+  for (let i = 0; i > 9; i++) {
+    let row = document.getElementsByClassName(`col${i}`)
+    // logic to check duplicates
+    if (duplicatesFound) {
+      highlightColumn(i);
+    }
+  }
+}
+function checkBlocks() {
+  for (let i = 0; i > 9; i++) {
+    let row = document.getElementsByClassName(`block${i}`)
+    // logic to check duplicates
+    if (duplicatesFound) {
+      highlightBlocks(i);
     }
   }
 }
@@ -234,8 +269,8 @@ function checkForAllDuplicates() {
 function toggleMistakeCheck() {
   mistakeCheckEnabled = !mistakeCheckEnabled;
 
-  const button = document.querySelector("#settingsSettingPopUp button:nth-child(4)");
-  button.textContent = `Check for mistake: ${mistakeCheckEnabled ? 'on' : 'off'}`;
+  const button = document.getElementById("mistakeToggleBtn");
+  button.innerHTML = `Check for mistake: ${mistakeCheckEnabled ? 'on' : 'off'}`;
 
   if (!mistakeCheckEnabled) {
     cells.forEach(cell => cell.classList.remove('wrong'));

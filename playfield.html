@@ -8,14 +8,15 @@
   <link rel="stylesheet" href="Sudoku.css" />
   <script src="script.js"></script>
   <style>
-  input.prefilled {
-    color: rgb(24, 216, 197);
-    font-weight: bold;
-  }
+    input.prefilled {
+      color: rgb(24, 216, 197);
+      font-weight: bold;
+    }
 
-  .highlight {
-    background-color: #d3d3d3; /* !important entfernt */
-  }
+    .highlight {
+      background-color: #d3d3d3;
+      /* !important entfernt */
+    }
 
     .highlight {
       background-color: #d3d3d3 !important;
@@ -28,8 +29,14 @@
   <button id="settingsButtonPosition" onclick="toggleSettingPopUp()">⚙️</button>
 
   <div class="SettingPopUp" id="settingsSettingPopUp">
-    <button class="closeButton" onclick="toggleSettingPopUp()">❌</button>
-    <div><strong>Settings</strong></div>
+    <div class="settingsHeader" id="settingsHeader">
+      <div class="settingsHeaderElement">
+        <strong>Settings</strong>
+      </div>
+      <div class="settingsHeaderElement right">
+        <button class="closeButton" onclick="toggleSettingPopUp()">❌</button>
+      </div>
+    </div>
     <button onclick="toggleTheme()" id="themeToggleBtn">🌞 Light Mode</button>
     <button onclick="toggleMistakeCheck()" id="mistakeToggleBtn">Check for mistake: on</button>
     <button onclick="toggleDuplicateCheck()" id="duplicateToggleBtn">Check for duplicates: on</button>
@@ -79,4 +86,4 @@
   </div>
 </body>
 
-</html> 
+</html>
