@@ -12,11 +12,11 @@ let seconds = 0;
 let timerInterval;
 let mistakeCount = 0;
 
-// code to run on start
 function updateMistakeCount() {
   document.getElementById("mistakeCountDisplay").textContent = `❌ Fehler: ${mistakeCount}`;
 }
 
+// code to run on start
 (function () {
   "use strict";
 
@@ -345,6 +345,33 @@ function insertNumber(number) {
   checkForAllDuplicates();
   checkAgainstSolution();
 }
+
+
+// function insertNumber(number) {
+//   if (!selectedCell) return;
+//   saveState(selectedCell);
+//   if (noteMode) {
+//     if (!selectedCell.dataset.notes) {
+//       selectedCell.dataset.notes = number;
+//     } else {
+//       const notesSet = new Set(selectedCell.dataset.notes.split(''));
+//       if (notesSet.has(number)) {
+//         notesSet.delete(number);
+//       } else {
+//         notesSet.add(number);
+//       }
+//       selectedCell.dataset.notes = Array.from(notesSet).sort().join('');
+//     }
+//     selectedCell.value = '';
+//     selectedCell.placeholder = selectedCell.dataset.notes;
+//   } else {
+//     selectedCell.value = number;
+//     selectedCell.placeholder = '';
+//     selectedCell.dataset.notes = '';
+//   }
+//   checkForAllDuplicates();
+//   checkAgainstSolution();
+// }
 
 function addEventListeners() {
   window.addEventListener('load', async () => {
