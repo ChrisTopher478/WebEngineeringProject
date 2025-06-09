@@ -230,39 +230,24 @@ function highlightRelatedCells(index) {
 
 function checkForAllDuplicates() {
   if (!duplicateCheckEnabled || !selectedCell) return;
-  const classes = selectedCell.classList.values().filter(clazz => clazz.startsWith("row") || clazz.startsWith("column") || clazz.startsWith("block")); 
-  classes.forEach(clazz => markDuplicates(clazz));
-
-  // cells.forEach(cell => cell.classList.remove('duplicate'));
-
-  // // Hilfsfunktion zur Prüfung auf Duplikate
-  // function markDuplicates(cellGroup) {
-  //   const valueMap = {};
-  //   for (const cell of cellGroup) {
-  //     const val = cell.value;
-  //     if (!val) continue;
-  //     if (!valueMap[val]) {
-  //       valueMap[val] = [];
-  //     }
-  //     valueMap[val].push(cell);
-  //   }
-  //   for (const val in valueMap) {
-  //     if (valueMap[val].length > 1) {
-  //       valueMap[val].forEach(cell => cell.classList.add('duplicate'));
-  //     }
-  //   }
-  // }
+  markAllDuplicates();
 }
 
-function markDuplicates(name) {
-  const elements = Array.from(document.getElementsByClassName(name));
-  const numbers = elements.map(cell => cell.value).filter(number => number !== 0);
-  while(numbers.length > 0){
-    const candidate = numbers.pop();
-    if(numbers.includes(candidate)){
-      elements.forEach(element => element.classList.add(`wrong`))
+function markAllDuplicates() {
+  cells.forEach(cell => cell.classList.remove(`duplicate`))
+  Array.from(["row", "col", "block"]).forEach(className => {
+    for (i = 0; i < 9; i++) {
+      let elements = Array.from(document.getElementsByClassName(`${className}${i}`));
+      let numbers = elements.map(cell => cell.value).filter(number => number.length === 1 && parseInt(number) !== 0);
+      while (numbers.length > 0) {
+        let candidate = numbers.pop();
+        if (numbers.includes(candidate)) {
+          elements.forEach(element => element.classList.add(`duplicate`));
+          return;
+        }
+      }
     }
-  }
+  });
 }
 
 function toggleMistakeCheck() {

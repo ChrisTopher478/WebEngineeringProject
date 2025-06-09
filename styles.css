@@ -95,11 +95,15 @@ body {
 
 #logo {
   position: absolute;
-  top: auto;  /* knapp oberhalb der Mitte */
+  top: auto;
+  /* knapp oberhalb der Mitte */
   left: 50%;
-  transform: translate(-50%, -100%); /* horizontal zentriert, vertikal oberhalb */
-  width: 450px; /* oder eine passende Breite */
-  height: auto; /* automatisch skalieren */
+  transform: translate(-50%, -100%);
+  /* horizontal zentriert, vertikal oberhalb */
+  width: 450px;
+  /* oder eine passende Breite */
+  height: auto;
+  /* automatisch skalieren */
   justify-content: center;
   align-items: center;
 }
@@ -108,7 +112,7 @@ body {
   position: absolute;
   top: 20px;
   right: 20px;
-  background: none; 
+  background: none;
   border: none;
   font-size: 30px;
   cursor: pointer;
@@ -354,8 +358,13 @@ input.prefilled {
   background-color: rgba(255, 0, 0, 0.5) !important;
 }
 
+.duplicate {
+  background-color: rgba(255, 0, 0, 0.5) !important;
+}
+
 body.light-mode .highlight {
-  background-color: rgba(0, 0, 255, 0.1) !important; /* z. B. helles Blau */
+  background-color: rgba(0, 0, 255, 0.1) !important;
+  /* z. B. helles Blau */
 }
 
 body.light-mode .wrong {
@@ -365,6 +374,7 @@ body.light-mode .wrong {
 body.light-mode .duplicate {
   background-color: rgba(255, 0, 0, 0.2) !important;
 }
+
 #mistakeCountDisplay {
   font-size: 22px;
   font-weight: bold;
