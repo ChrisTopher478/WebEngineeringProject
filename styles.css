@@ -1,9 +1,3 @@
-/* body:not(.dark-mode) #themeToggleBtn {
-  background-color: white;
-  color: white;
-  border: 1px solid black;
-} */
-
 body {
   margin: 0;
   background-color: #111;
@@ -60,7 +54,7 @@ body {
   border: 2px solid white;
   padding: 10px;
   border-radius: 10px;
-  background-color: #222;
+  background-color: #fff;
   margin-bottom: 80px;
   justify-content: center;
   align-items: center;
@@ -332,7 +326,7 @@ body.light-mode .wide-button:hover {
 }
 
 input.duplicate {
-  background-color: rgba(255, 0, 0, 0.7) !important;
+  background-color: rgba(255, 0, 0, 0.2) !important;
 }
 
 .settingsHeader {
@@ -350,24 +344,21 @@ input.prefilled {
 }
 
 .highlight {
-  background-color: rgba(255, 255, 255, 0.5) !important;
+  background-color: rgba(100, 100, 100, 0.5) !important;
   /* hellgrau */
 }
 
-.wrong {
-  background-color: rgba(255, 0, 0, 0.5) !important;
-}
-
-.duplicate {
-  background-color: rgba(255, 0, 0, 0.5) !important;
+.wrong .duplicate{
+  background-color: rgba(255, 0, 0, 0.2) !important;
 }
 
 body.light-mode .highlight {
-  background-color: rgba(0, 0, 255, 0.1) !important;
+  background-color: rgba(0, 0, 255, 0.2) !important;
   /* z. B. helles Blau */
 }
 
 body.light-mode .wrong {
+  background-color: #f9f9f9;
   background-color: rgba(255, 100, 100, 0.5) !important;
 }
 
@@ -384,4 +375,57 @@ body.light-mode .duplicate {
 
 .same-number {
   background-color: rgba(0, 0, 255, 0.4) !important;
+}
+
+body.light-mode .wrong {
+  background-color: rgba(255, 100, 100, 0.5) !important;
+}
+
+.wrong .duplicate {
+  background-color: rgba(255, 0, 0, 0.2) !important;
+}
+
+input.wrong {
+  background-color: rgba(255, 0, 0, 0.3) !important;
+  z-index: 10;
+}
+
+
+input.same-number {
+  color: purple !important;
+  font-weight: bold !important;
+}
+
+input.same-note::placeholder {
+  color: purple !important;
+  font-weight: bold !important;
+}
+
+.cell {
+  width: 38px;
+  height: 38px;
+  border: 1px solid #555;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  font-family: 'Courier New', monospace;
+}
+
+.note-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  width: 100%;
+  height: 100%;
+  font-size: 0.5em;
+  color: gray;
+  text-align: center;
+}
+
+.note-grid .note {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }

@@ -11,20 +11,32 @@ let mistakeCheckEnabled = true;
 let seconds = 0;
 let timerInterval;
 let mistakeCount = 0;
+let sameNumberHighlightEnabled = true;
+
 
 // code to run on start
 
 function clearCell(cell) {
   if (!cell || cell.readOnly) return;
-
   cell.value = '';
   cell.placeholder = '';
   cell.dataset.notes = '';
+  checkForAllDuplicates();
+  checkAgainstSolution();
+  highlightSameNumbers('');
+}
 
+
+function setForCell(cell, value, placeholder, notes){
+  if (!cell || cell.readOnly) return;
+  
+  cell.value = value;
+  cell.placeholder = placeholder;
+  cell.dataset.notes = notes;
+  
   checkForAllDuplicates();
   checkAgainstSolution();
 }
-
 
 function updateMistakeCount() {
   document.getElementById("mistakeCountDisplay").textContent = `❌ Fehler: ${mistakeCount}`;
@@ -80,6 +92,22 @@ function toggleHighlighting() {
   }
 }
 
+function toggleSameNumberHighlight() {
+  sameNumberHighlightEnabled = !sameNumberHighlightEnabled;
+  const btn = document.getElementById("sameNumberHighlightBtn");
+  btn.textContent = `Highlight same numbers: ${sameNumberHighlightEnabled ? 'on' : 'off'}`;
+
+  // Bei Ausschalten Markierung sofort entfernen
+  if (!sameNumberHighlightEnabled) {
+    cells.forEach(cell => {
+      cell.classList.remove('same-number');
+      cell.classList.remove('same-note');
+    });
+  } else if (selectedCell && selectedCell.value) {
+    highlightSameNumbers(selectedCell.value);
+  }
+}
+
 function toggleDuplicateCheck() {
   duplicateCheckEnabled = !duplicateCheckEnabled;
   const button = document.getElementById("duplicateToggleBtn");
@@ -114,6 +142,9 @@ async function loadPuzzle(difficulty) {
 function createPlayfield(cells) {
   const grid = document.getElementById('sudokuGrid');
   for (let i = 0; i < 81; i++) {
+    const container = document.createElement('div');
+    container.classList.add('cell'); // Für Layout & Note-Darstellung
+
     const input = document.createElement('input');
     input.type = 'text';
     input.maxLength = 1;
@@ -129,7 +160,7 @@ function createPlayfield(cells) {
 
     input.classList.add(`row${row}`);
     input.classList.add(`col${col}`);
-    input.classList.add(`block${block}`); // wichtig für Block-Duplikatprüfung
+    input.classList.add(`block${block}`);
 
     if (col === 2 || col === 5) input.classList.add('thick-right');
     if (row === 2 || row === 5) input.classList.add('thick-bottom');
@@ -139,11 +170,24 @@ function createPlayfield(cells) {
       checkForAllDuplicates();
     });
 
-    grid.appendChild(input);
+    container.appendChild(input);
+
+    // ⬇️ Notizenraster ergänzen
+    const noteGrid = document.createElement('div');
+    noteGrid.classList.add('note-grid');
+    for (let n = 1; n <= 9; n++) {
+      const note = document.createElement('div');
+      note.classList.add('note');
+      note.dataset.number = n;
+      note.textContent = '';
+      noteGrid.appendChild(note);
+    }
+    container.appendChild(noteGrid);
+
+    grid.appendChild(container);
     cells.push(input);
   }
 }
-
 
 function checkAgainstSolution() {
   if (!mistakeCheckEnabled || !currentSolution.length) return;
@@ -181,7 +225,52 @@ function exitGame() {
 }
 
 function saveForLater() {
-  alert("Spielstand gespeichert. (Hier könnte z. B. localStorage verwendet werden.)");
+  const saveData = {
+    timestamp: Date.now(),
+    cells: cells.map(cell => ({
+      value: cell.value,
+      placeholder: cell.placeholder,
+      notes: cell.dataset.notes || '',
+      readOnly: cell.readOnly
+    })),
+    timeInSeconds: seconds,
+    mistakes: mistakeCount,
+    difficulty: getQueryParam('difficulty') || 'easy'
+  };
+
+  localStorage.setItem('sudokuSave', JSON.stringify(saveData));
+  alert("Spielstand gespeichert!");
+
+  // JSON-Datei erzeugen und herunterladen
+  const blob = new Blob([JSON.stringify(saveData, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "sudoku_savegame.json";
+  a.click();
+  URL.revokeObjectURL(url);
+  window.location.href = "startingPage.html";
+}
+
+
+function loadSavedGame() {
+  const saveData = JSON.parse(localStorage.getItem('sudokuSave'));
+  if (!saveData) return;
+
+  saveData.cells.forEach((cellData, idx) => {
+    const cell = cells[idx];
+    cell.value = cellData.value;
+    cell.placeholder = cellData.placeholder;
+    cell.dataset.notes = cellData.notes;
+    cell.readOnly = cellData.readOnly;
+    if (cell.readOnly) {
+      cell.classList.add('prefilled');
+    }
+  });
+
+  seconds = saveData.timeInSeconds || 0;
+  mistakeCount = saveData.mistakes || 0;
+  updateMistakeCount();
 }
 
 function saveState(cell) {
@@ -228,6 +317,26 @@ function highlightRelatedCells(index) {
   }
 }
 
+function highlightSameNumbers(value) {
+  // nur wenn eingeschaltet
+  if (!sameNumberHighlightEnabled || !value || !/^[1-9]$/.test(value)) return;
+
+  cells.forEach(cell => {
+    cell.classList.remove('same-number');
+    cell.classList.remove('same-note');
+
+    if (cell.value === value) {
+      cell.classList.add('same-number');
+    }
+
+    if (cell.dataset.notes && cell.dataset.notes.includes(value)) {
+      cell.classList.add('same-note');
+    }
+  });
+}
+
+
+
 function checkForAllDuplicates() {
   if (!duplicateCheckEnabled || !selectedCell) return;
   markAllDuplicates();
@@ -242,7 +351,11 @@ function markAllDuplicates() {
       while (numbers.length > 0) {
         let candidate = numbers.pop();
         if (numbers.includes(candidate)) {
-          elements.forEach(element => element.classList.add(`duplicate`));
+          elements.forEach(element => {
+            if(parseInt(element.value) == candidate) {
+              element.classList.add(`duplicate`)
+            }
+          });
           return;
         }
       }
@@ -281,27 +394,42 @@ function moveSelection(offset) {
 
 function insertNumber(number) {
   if (!selectedCell) return;
+
   saveState(selectedCell);
+
+  const noteGrid = selectedCell.parentElement.querySelector('.note-grid');
+
   if (noteMode) {
-    if (!selectedCell.dataset.notes) {
-      selectedCell.dataset.notes = number;
+    // Notizmodus aktiv
+    let notesSet = new Set((selectedCell.dataset.notes || '').split(''));
+
+    if (notesSet.has(number)) {
+      notesSet.delete(number);
     } else {
-      const notesSet = new Set(selectedCell.dataset.notes.split(''));
-      if (notesSet.has(number)) {
-        notesSet.delete(number);
-      } else {
-        notesSet.add(number);
-      }
-      selectedCell.dataset.notes = Array.from(notesSet).sort().join('');
+      notesSet.add(number);
     }
-    selectedCell.value = '';
-    selectedCell.placeholder = selectedCell.dataset.notes;
+
+    const updatedNotes = Array.from(notesSet).sort().join('');
+    selectedCell.dataset.notes = updatedNotes;
+
+    // Ziffern als sichtbare Notizen im Zahlenpad-Stil setzen
+    Array.from(noteGrid.children).forEach(div => {
+      const digit = div.dataset.number;
+      div.textContent = updatedNotes.includes(digit) ? digit : '';
+    });
+
+    selectedCell.value = ''; // im Notizmodus keine Zahl sichtbar
   } else {
+    // Eingabemodus aktiv
     selectedCell.value = number;
-    selectedCell.placeholder = '';
     selectedCell.dataset.notes = '';
 
-    // ⬇️ HIER wird der Fehler geprüft und gezählt
+    // Alle Notizen im Grid entfernen
+    Array.from(noteGrid.children).forEach(div => {
+      div.textContent = '';
+    });
+
+    // Fehlerprüfung bei aktiver Prüfung
     if (mistakeCheckEnabled && currentSolution.length) {
       const idx = cells.indexOf(selectedCell);
       if (parseInt(selectedCell.value) !== currentSolution[idx]) {
@@ -309,6 +437,8 @@ function insertNumber(number) {
         updateMistakeCount();
       }
     }
+
+    highlightSameNumbers(number);
   }
 
   checkForAllDuplicates();
@@ -437,7 +567,16 @@ function addInputEventListeners() {
 
       // Einheitliches Highlighting über zentrale Funktion
       highlightRelatedCells(i);
+
+      // Neue Funktion: gleiche Zahlen und Notizen lila & fett hervorheben
+      if (cell.value) {
+        highlightSameNumbers(cell.value);
+      } else {
+        // Wenn keine Zahl eingegeben ist, alle Markierungen entfernen
+        highlightSameNumbers('');
+      }
     });
   });
 }
+
 
