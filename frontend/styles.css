@@ -1,0 +1,28 @@
+.heading {
+  height: 10rem;
+  width: 100%;
+}
+
+.headingContainer {
+  display: grid;
+  justify-content: center;
+  height: inherit;
+  width: inherit;
+}
+
+.logo {
+  height: inherit;
+  align-self: center;
+}
+
+#openSettings {
+  height: 50px;
+  width: 50px;
+
+  position: fixed;
+  top: 0.8em;
+  right: 0.8em;
+
+  background: none;
+  border: none;
+}
