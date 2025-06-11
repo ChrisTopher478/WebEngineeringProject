@@ -1,0 +1,301 @@
+/* =======================
+   Grundlegende Variablen
+======================= */
+:root {
+    --font-family: Arial, sans-serif;
+    --bg-color: #fff;
+    --border-color: #999;
+    --highlight-color: #eee;
+    --bold-border-color: #000;
+    --button-bg: #f0f0f0;
+    --button-hover-bg: #ddd;
+
+    --cell-size: 2rem;
+    --input-size: 1.8rem;
+    --num-button-width: 2.5rem;
+    --num-button-height: 1.6rem;
+    --header-height: 5.5rem;
+}
+
+/* =======================
+   Allgemeines Layout
+======================= */
+body {
+    font-family: var(--font-family);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0;
+    height: 100vh;
+    background-color: var(--bg-color);
+}
+
+/* =======================
+   Header-Bereich
+======================= */
+.heading {
+    position: relative;
+    width: 100%;
+    height: var(--header-height);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.logoContainer {
+    display: flex;
+    align-items: center;
+}
+
+.logo {
+    height: 4.7rem;
+}
+
+#openSettings {
+    position: absolute;
+    right: 1.2rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+#openSettings img {
+    height: 1.8rem;
+}
+
+/* =======================
+   Spielfeld & Container
+======================= */
+.gameContainer {
+    position: relative;
+    height: calc(100vh - var(--header-height));
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Das Sudoku-Spielfeld wirklich exakt mittig */
+.boardWrapper {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+}
+
+
+table {
+    border-collapse: collapse;
+}
+
+td {
+    border: 1px solid var(--border-color);
+    width: var(--cell-size);
+    height: var(--cell-size);
+    text-align: center;
+    padding: 0;
+}
+
+input {
+    width: var(--input-size);
+    height: var(--input-size);
+    font-size: 0.9rem;
+    text-align: center;
+    border: none;
+    padding: 0;
+}
+
+/* =======================
+   Spezielle Felder
+======================= */
+.fixed {
+    background-color: var(--highlight-color);
+    font-weight: bold;
+}
+
+.bold-border {
+    border: 2px solid var(--bold-border-color);
+}
+
+/* =======================
+   Nummern-Pad
+======================= */
+.numPad {
+    position: absolute;
+    left: 50%;
+    transform: translateX(calc(9 * var(--cell-size) / 2 + 1rem));
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    height: calc(var(--cell-size) * 9);
+}
+
+.numButton {
+    width: var(--num-button-width);
+    height: var(--num-button-height);
+    font-size: 0.9rem;
+    cursor: pointer;
+    padding: 0;
+    background-color: var(--button-bg);
+    border: 1px solid var(--border-color);
+}
+
+.numButton:hover {
+    background-color: var(--button-hover-bg);
+}
+
+/* =======================
+   Sidebar & Overlay
+======================= */
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    right: 0; /* immer gleiche Position */
+    width: 300px;
+    height: 100%;
+    background-color: #fff;
+    box-shadow: -2px 0 5px rgba(0,0,0,0.3);
+    z-index: 1000;
+    padding: 1rem;
+    display: none; /* Standardmäßig unsichtbar */
+}
+
+.sidebar.open {
+    display: block; /* Nur sichtbar, wenn offen */
+}
+
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.4);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease;
+    z-index: 999;
+}
+
+.overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* =======================
+   Toggle Switches
+======================= */
+
+.toggleContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.toggleSwitch {
+    position: relative;
+    display: flex;
+    justify-content: space-between; /* verteilt Text links und Schalter rechts */
+    align-items: center;
+    font-size: 1rem;
+    cursor: pointer;
+    width: 100%; 
+}
+
+.toggleSwitch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: relative;
+    width: 40px;
+    height: 20px;
+    background-color: #ccc;
+    border-radius: 20px;
+    margin-right: 10px;
+    transition: background-color 0.3s;
+}
+
+.slider::before {
+    content: "";
+    position: absolute;
+    height: 16px;
+    width: 16px;
+    left: 2px;
+    bottom: 2px;
+    background-color: white;
+    border-radius: 50%;
+    transition: transform 0.3s;
+}
+
+.toggleSwitch input:checked + .slider {
+    background-color: #4caf50;
+}
+
+.toggleSwitch input:checked + .slider::before {
+    transform: translateX(20px);
+}
+
+/* =======================
+   Seitliche Buttons
+======================= */
+
+.sideButtons {
+    position: absolute;
+    left: 50%;
+    top: calc(50% - (var(--cell-size) * 9 / 2));
+    transform: translateX(calc(-9 * var(--cell-size) / 2 - 5rem - 1rem));
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.sideButton {
+    width: 5rem;
+    height: 2rem;
+    font-size: 1rem;
+    cursor: pointer;
+    background-color: var(--button-bg);
+    border: 1px solid var(--border-color);
+    transition: background-color 0.3s;
+}
+
+.sideButton:hover {
+    background-color: var(--button-hover-bg);
+}
+
+.splitButtons {
+    display: flex;
+    width: 5rem; /* exakt so breit wie die ursprünglichen sideButton */
+    gap: 0.2rem; /* kleiner Abstand zwischen den beiden Buttons */
+}
+
+.sideButtonSmall {
+    width: calc((5rem - 0.2rem) / 2);
+    height: 2rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    background-color: var(--button-bg);
+    border: 1px solid var(--border-color);
+    transition: background-color 0.3s;
+}
+
+.sideButtonSmall:hover {
+    background-color: var(--button-hover-bg);
+}
+
+/* =======================
+   Remove cursor
+======================= */
+
+input {
+    caret-color: transparent;
+}
+
+/* next stuff */
