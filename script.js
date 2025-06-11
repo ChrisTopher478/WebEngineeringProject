@@ -12,6 +12,15 @@ let timerInterval;
 let mistakeCount = 0;
 let sameNumberHighlightEnabled = true;
 
+// init shit
+function init() {
+  createPlayfield(cells);
+  addInputEventListeners();
+  addEventListeners();
+}
+
+window.onload = init;
+
 function clearCell(cell) {
   if (!cell || cell.readOnly) return;
   cell.value = '';
@@ -36,20 +45,6 @@ function setForCell(cell, value, placeholder, notes){
 function updateMistakeCount() {
   document.getElementById("mistakeCountDisplay").textContent = `❌ Fehler: ${mistakeCount}`;
 }
-
-(function () {
-  "use strict";
-
-  var observer = new MutationObserver(function () {
-    if (document.body) {
-      createPlayfield(cells);
-      addInputEventListeners();
-      addEventListeners();
-      observer.disconnect();
-    }
-  });
-  observer.observe(document.documentElement, { childList: true });
-})();
 
 function toggleSettingPopUp() {
   const SettingPopUp = document.getElementById("settingsSettingPopUp");
