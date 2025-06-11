@@ -60,8 +60,11 @@ body {
 }
 
 .sudoku-grid input {
-  width: 38px;
-  height: 38px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   text-align: center;
   font-size: 20px;
   font-family: "Courier New", monospace;
@@ -71,7 +74,9 @@ body {
   outline: none;
   box-sizing: border-box;
   caret-color: transparent;
+  z-index: 2; /* über dem Note Grid */
 }
+
 
 .sudoku-grid input.thick-right {
   border-right: 3px solid white;
@@ -89,14 +94,10 @@ body {
 #logo {
   position: absolute;
   top: auto;
-  /* knapp oberhalb der Mitte */
   left: 50%;
   transform: translate(-50%, -100%);
-  /* horizontal zentriert, vertikal oberhalb */
   width: 450px;
-  /* oder eine passende Breite */
   height: auto;
-  /* automatisch skalieren */
   justify-content: center;
   align-items: center;
 }
@@ -402,29 +403,34 @@ input.same-note::placeholder {
 .cell {
   width: 38px;
   height: 38px;
+  position: relative; /* wichtig */
   border: 1px solid #555;
   box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
   font-family: "Courier New", monospace;
   background-color: #fff;
 }
 
+
 .note-grid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(3, 1fr);
-  width: 100%;
-  height: 100%;
   font-size: 0.5em;
   color: gray;
   text-align: center;
+  z-index: 1;
+  pointer-events: none; /* damit klicks weiter ans input gehen */
 }
+
 
 .note-grid .note {
   display: flex;
   align-items: center;
   justify-content: center;
 }
+

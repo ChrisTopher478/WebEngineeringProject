@@ -1,4 +1,3 @@
-// global variables
 const cells = [];
 let selectedCell = null;
 let noteMode = false;
@@ -13,9 +12,6 @@ let timerInterval;
 let mistakeCount = 0;
 let sameNumberHighlightEnabled = true;
 
-
-// code to run on start
-
 function clearCell(cell) {
   if (!cell || cell.readOnly) return;
   cell.value = '';
@@ -25,7 +21,6 @@ function clearCell(cell) {
   checkAgainstSolution();
   highlightSameNumbers('');
 }
-
 
 function setForCell(cell, value, placeholder, notes){
   if (!cell || cell.readOnly) return;
@@ -97,7 +92,6 @@ function toggleSameNumberHighlight() {
   const btn = document.getElementById("sameNumberHighlightBtn");
   btn.textContent = `Highlight same numbers: ${sameNumberHighlightEnabled ? 'on' : 'off'}`;
 
-  // Bei Ausschalten Markierung sofort entfernen
   if (!sameNumberHighlightEnabled) {
     cells.forEach(cell => {
       cell.classList.remove('same-number');
@@ -147,6 +141,8 @@ function createPlayfield(cells) {
 
     const input = document.createElement('input');
     input.type = 'text';
+    input.autocomplete = 'off';
+    input.inputMode = 'numeric';
     input.maxLength = 1;
     input.pattern = "[1-9]";
     input.id = `cell${i}`;
@@ -172,7 +168,6 @@ function createPlayfield(cells) {
 
     container.appendChild(input);
 
-    // ⬇️ Notizenraster ergänzen
     const noteGrid = document.createElement('div');
     noteGrid.classList.add('note-grid');
     for (let n = 1; n <= 9; n++) {
@@ -241,7 +236,6 @@ function saveForLater() {
   localStorage.setItem('sudokuSave', JSON.stringify(saveData));
   alert("Spielstand gespeichert!");
 
-  // JSON-Datei erzeugen und herunterladen
   const blob = new Blob([JSON.stringify(saveData, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
@@ -279,6 +273,17 @@ function saveState(cell) {
   future.length = 0;
 }
 
+function saveFullState() {
+  const snapshot = cells.map(cell => ({
+    cell: cell,
+    value: cell.value,
+    placeholder: cell.placeholder,
+    notes: cell.dataset.notes
+  }));
+  history.push(snapshot);
+  future.length = 0;
+}
+
 function restoreState(stackFrom, stackTo) {
   const state = stackFrom.pop();
   if (state) {
@@ -294,19 +299,16 @@ function restoreState(stackFrom, stackTo) {
 function highlightRelatedCells(index) {
   if (!highlightEnabled) return;
 
-  // Vorheriges Highlight entfernen
   cells.forEach(cell => cell.classList.remove('highlight'));
 
   const row = Math.floor(index / 9);
   const col = index % 9;
 
-  // Zeile und Spalte hervorheben
   for (let i = 0; i < 9; i++) {
     cells[row * 9 + i].classList.add('highlight');
     cells[i * 9 + col].classList.add('highlight');
   }
 
-  // 3x3 Block hervorheben
   const blockRowStart = Math.floor(row / 3) * 3;
   const blockColStart = Math.floor(col / 3) * 3;
   for (let r = 0; r < 3; r++) {
@@ -318,7 +320,6 @@ function highlightRelatedCells(index) {
 }
 
 function highlightSameNumbers(value) {
-  // nur wenn eingeschaltet
   if (!sameNumberHighlightEnabled || !value || !/^[1-9]$/.test(value)) return;
 
   cells.forEach(cell => {
@@ -382,7 +383,6 @@ function moveSelection(offset) {
   let index = cells.indexOf(selectedCell);
   let newIndex = index + offset;
 
-  // Sonderfälle vermeiden: z. B. von Spalte 0 nach Spalte 8 bei Linksbewegung
   if (offset === -1 && index % 9 === 0) return;
   if (offset === 1 && index % 9 === 8) return;
   if (newIndex < 0 || newIndex >= 81) return;
@@ -400,7 +400,6 @@ function insertNumber(number) {
   const noteGrid = selectedCell.parentElement.querySelector('.note-grid');
 
   if (noteMode) {
-    // Notizmodus aktiv
     let notesSet = new Set((selectedCell.dataset.notes || '').split(''));
 
     if (notesSet.has(number)) {
@@ -412,7 +411,6 @@ function insertNumber(number) {
     const updatedNotes = Array.from(notesSet).sort().join('');
     selectedCell.dataset.notes = updatedNotes;
 
-    // Ziffern als sichtbare Notizen im Zahlenpad-Stil setzen
     Array.from(noteGrid.children).forEach(div => {
       const digit = div.dataset.number;
       div.textContent = updatedNotes.includes(digit) ? digit : '';
@@ -420,16 +418,17 @@ function insertNumber(number) {
 
     selectedCell.value = ''; // im Notizmodus keine Zahl sichtbar
   } else {
-    // Eingabemodus aktiv
     selectedCell.value = number;
     selectedCell.dataset.notes = '';
 
-    // Alle Notizen im Grid entfernen
     Array.from(noteGrid.children).forEach(div => {
       div.textContent = '';
     });
 
-    // Fehlerprüfung bei aktiver Prüfung
+    const index = cells.indexOf(selectedCell);
+    saveAffectedNotes(index, number); 
+    removeNotesForNumber(index, number);
+
     if (mistakeCheckEnabled && currentSolution.length) {
       const idx = cells.indexOf(selectedCell);
       if (parseInt(selectedCell.value) !== currentSolution[idx]) {
@@ -443,6 +442,76 @@ function insertNumber(number) {
 
   checkForAllDuplicates();
   checkAgainstSolution();
+}
+
+function removeNotesForNumber(index, number) {
+  const row = Math.floor(index / 9);
+  const col = index % 9;
+  const blockRowStart = Math.floor(row / 3) * 3;
+  const blockColStart = Math.floor(col / 3) * 3;
+
+  const affectedIndices = new Set();
+
+  for (let c = 0; c < 9; c++) {
+    affectedIndices.add(row * 9 + c);
+  }
+
+  for (let r = 0; r < 9; r++) {
+    affectedIndices.add(r * 9 + col);
+  }
+
+  for (let r = 0; r < 3; r++) {
+    for (let c = 0; c < 3; c++) {
+      affectedIndices.add((blockRowStart + r) * 9 + (blockColStart + c));
+    }
+  }
+
+  affectedIndices.forEach(idx => {
+    const cell = cells[idx];
+    if (cell.dataset.notes && cell.dataset.notes.includes(number)) {
+      let notesSet = new Set(cell.dataset.notes.split(''));
+      notesSet.delete(number);
+      const updatedNotes = Array.from(notesSet).sort().join('');
+      cell.dataset.notes = updatedNotes;
+
+      const noteGrid = cell.parentElement.querySelector('.note-grid');
+      Array.from(noteGrid.children).forEach(div => {
+        const digit = div.dataset.number;
+        div.textContent = updatedNotes.includes(digit) ? digit : '';
+      });
+    }
+  });
+}
+
+function saveAffectedNotes(index, number) {
+  const row = Math.floor(index / 9);
+  const col = index % 9;
+  const blockRowStart = Math.floor(row / 3) * 3;
+  const blockColStart = Math.floor(col / 3) * 3;
+
+  const affectedIndices = new Set();
+
+  for (let c = 0; c < 9; c++) {
+    affectedIndices.add(row * 9 + c);
+  }
+  for (let r = 0; r < 9; r++) {
+    affectedIndices.add(r * 9 + col);
+  }
+  for (let r = 0; r < 3; r++) {
+    for (let c = 0; c < 3; c++) {
+      affectedIndices.add((blockRowStart + r) * 9 + (blockColStart + c));
+    }
+  }
+
+  affectedIndices.forEach(idx => {
+    const cell = cells[idx];
+    history.push({
+      cell: cell,
+      value: cell.value,
+      placeholder: cell.placeholder,
+      notes: cell.dataset.notes
+    });
+  });
 }
 
 function addEventListeners() {
@@ -488,13 +557,8 @@ function addEventListeners() {
     }
     if (selectedCell && (event.key === 'Backspace' || event.key === 'Delete')) {
       event.preventDefault();
-      saveState(selectedCell);
+      saveFullState(selectedCell);
       clearCell(selectedCell)
-      // selectedCell.value = '';
-      // selectedCell.placeholder = '';
-      // selectedCell.dataset.notes = '';
-      // checkForAllDuplicates();
-      // checkAgainstSolution();
     }
     switch (event.key) {
       case "ArrowLeft":
@@ -522,20 +586,17 @@ function addEventListeners() {
 
   document.getElementById("eraseButton").addEventListener("click", () => {
     if (selectedCell && !selectedCell.readOnly) {
-      saveState(selectedCell);
+      saveFullState();
+
       clearCell(selectedCell)
-      // selectedCell.value = '';
-      // selectedCell.placeholder = '';
-      // selectedCell.dataset.notes = '';
-      // checkForAllDuplicates();
-      // checkAgainstSolution();
     }
   });
 
   document.getElementById("resetButton").addEventListener("click", () => {
+    saveFullState();
     document.querySelectorAll('#sudokuGrid input').forEach((cell, i) => {
       if (!cell.readOnly) {
-        saveState(cell);
+        saveFullState(cell);
         cell.value = '';
         cell.placeholder = '';
         cell.dataset.notes = '';
@@ -560,23 +621,17 @@ function addInputEventListeners() {
     cell.addEventListener('click', () => {
       if (!highlightEnabled) return;
 
-      // Zelle als ausgewählt markieren
       if (!cell.readOnly) {
         selectedCell = cell;
       }
 
-      // Einheitliches Highlighting über zentrale Funktion
       highlightRelatedCells(i);
 
-      // Neue Funktion: gleiche Zahlen und Notizen lila & fett hervorheben
       if (cell.value) {
         highlightSameNumbers(cell.value);
       } else {
-        // Wenn keine Zahl eingegeben ist, alle Markierungen entfernen
         highlightSameNumbers('');
       }
     });
   });
 }
-
-
