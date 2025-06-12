@@ -8,84 +8,93 @@
 </head>
 <body>
 
-<header class="heading">
-    <div class="logoContainer">
-        <img class="logo" src="img/blackLogo.png" alt="Sudoku Logo">
-    </div>
-    <button id="openSettings" type="button" aria-label="Einstellungen öffnen">
-        <img src="img/settings_colorful.png" alt="Einstellungen">
-    </button>
-</header>
-
-<main class="gameContainer">
-
-    <!-- Neue linke Button-Leiste -->
-    <section class="leftSideButtons" aria-label="Seitliche Buttons">
-        <div class="splitButtons">
-            <button class="leftSideButtonSmall">1</button>
-            <button class="leftSideButtonSmall">2</button>
+    <!-- HEADER -->
+    <header class="heading">
+        <div class="logoContainer">
+            <img class="logo" src="img/blackLogo.png" alt="Sudoku Logo">
         </div>
-        <button class="leftSideButton" type="button">Button 2</button>
-        <button class="leftSideButton" type="button">Button 3</button>
-        <button class="leftSideButton" type="button">Button 4</button>
-    </section>
+        <button id="openSettings" type="button" aria-label="Einstellungen öffnen">
+            <img src="img/settings_colorful.png" alt="Einstellungen">
+        </button>
+    </header>
 
-    <!-- Sudoku-Spielfeld -->
-    <section class="boardWrapper">
-        <table id="sudoku" aria-label="Sudoku Spielfeld"></table>
-    </section>
+    <!-- HAUPTINHALT -->
+    <main class="gameContainer">
 
-    <!-- Nummernfeld (rechts neben dem Spielfeld) -->
-    <section class="numPad" aria-label="Nummernfeld">
-        <button class="numButton" data-value="N" type="button">N</button>
-        <button class="numButton" data-value="1" type="button">1</button>
-        <button class="numButton" data-value="2" type="button">2</button>
-        <button class="numButton" data-value="3" type="button">3</button>
-        <button class="numButton" data-value="4" type="button">4</button>
-        <button class="numButton" data-value="5" type="button">5</button>
-        <button class="numButton" data-value="6" type="button">6</button>
-        <button class="numButton" data-value="7" type="button">7</button>
-        <button class="numButton" data-value="8" type="button">8</button>
-        <button class="numButton" data-value="9" type="button">9</button>
-    </section>
-</main>
+        <!-- Linke Seitenleiste -->
+        <nav class="leftSideButtons" aria-label="Seitliche Buttons">
+            <div class="splitButtons">
+                <button class="leftSideButtonSmall" type="button">1</button>
+                <button class="leftSideButtonSmall" type="button">2</button>
+            </div>
+            <button class="leftSideButton" type="button">Button 2</button>
+            <button class="leftSideButton" type="button">Button 3</button>
+            <button class="leftSideButton" type="button">Button 4</button>
+        </nav>
 
+        <!-- Sudoku-Spielfeld -->
+        <section class="boardWrapper">
+            <table id="sudoku" aria-label="Sudoku Spielfeld"></table>
+        </section>
 
-<div id="overlay" class="overlay"></div>
+        <!-- Nummernfeld -->
+        <aside class="numPad" aria-label="Nummernfeld">
+            <button class="numButton" data-value="N" type="button">N</button>
+            <button class="numButton" data-value="1" type="button">1</button>
+            <button class="numButton" data-value="2" type="button">2</button>
+            <button class="numButton" data-value="3" type="button">3</button>
+            <button class="numButton" data-value="4" type="button">4</button>
+            <button class="numButton" data-value="5" type="button">5</button>
+            <button class="numButton" data-value="6" type="button">6</button>
+            <button class="numButton" data-value="7" type="button">7</button>
+            <button class="numButton" data-value="8" type="button">8</button>
+            <button class="numButton" data-value="9" type="button">9</button>
+        </aside>
 
-<aside id="sidebar" class="sidebar">
-    <h2>Einstellungen</h2>
-    
-    <div class="toggleContainer">
-        <label class="toggleSwitch">
-            <p>Dark mode</p>
-            <input type="checkbox" id="toggle1">
-            <span class="slider"></span>
-        </label>
-        <label class="toggleSwitch">
-            <p>Check for mistakes</p>
-            <input type="checkbox" id="toggle2">
-            <span class="slider"></span>
-        </label>
-        <label class="toggleSwitch">
-            <p>Check for duplicates</p>
-            <input type="checkbox" id="toggle3">
-            <span class="slider"></span>
-        </label>
-        <label class="toggleSwitch">
-            <p>Highlight same numbers</p>
-            <input type="checkbox" id="toggle4">
-            <span class="slider"></span>
-        </label>
-        <label class="toggleSwitch">
-            <p>Backround highlighting</p>
-            <input type="checkbox" id="toggle5">
-            <span class="slider"></span>
-        </label>
-    </div>
-</aside>
+    </main>
 
-<script src="sudoku.js"></script>
+    <!-- OVERLAY -->
+    <div id="overlay" class="overlay"></div>
+
+    <!-- SIDEBAR EINSTELLUNGEN -->
+    <aside id="sidebar" class="sidebar">
+        <h2>Einstellungen</h2>
+
+        <div class="toggleContainer">
+            <!-- EINZELNE TOGGLES -->
+            <label class="toggleSwitch">
+                <p>Dark mode</p>
+                <input type="checkbox" id="toggle1">
+                <span class="slider"></span>
+            </label>
+
+            <label class="toggleSwitch">
+                <p>Check for mistakes</p>
+                <input type="checkbox" id="toggle2">
+                <span class="slider"></span>
+            </label>
+
+            <label class="toggleSwitch">
+                <p>Check for duplicates</p>
+                <input type="checkbox" id="toggle3">
+                <span class="slider"></span>
+            </label>
+
+            <label class="toggleSwitch">
+                <p>Highlight same numbers</p>
+                <input type="checkbox" id="toggle4">
+                <span class="slider"></span>
+            </label>
+
+            <label class="toggleSwitch">
+                <p>Backround highlighting</p>
+                <input type="checkbox" id="toggle5">
+                <span class="slider"></span>
+            </label>
+        </div>
+    </aside>
+
+    <script src="sudoku.js"></script>
 
 </body>
 </html>
