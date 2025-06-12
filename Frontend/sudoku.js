@@ -64,15 +64,36 @@ async function loadSudoku() {
 
 // === Event Handling ===
 function setupEventHandlers() {
+    // Undo / Redo Buttons
     document.getElementById("undoButton").addEventListener("click", () => state.undo());
     document.getElementById("redoButton").addEventListener("click", () => state.redo());
 
+    // Löschen Button
+    document.getElementById("deleteButton").addEventListener("click", () => {
+        if (!state.activeCell) return;
+
+        const { row, col } = state.activeCell;
+        const cell = state.board[row][col];
+
+        if (cell.fixed) return;  // feste Zellen dürfen nicht gelöscht werden
+
+        state.saveState();
+
+        cell.value = null;
+        cell.notes = [];
+        cell.invalid = false;
+
+        renderBoard();
+    });
+
+    // Nummernfeld (NumPad)
     document.querySelector(".numPad").addEventListener("click", e => {
         if (e.target.classList.contains("numButton")) {
             handleNumPadClick(e.target);
         }
     });
 
+    // Sidebar öffnen & schließen
     const openSettingsButton = document.getElementById("openSettings");
     const sidebar = document.getElementById("sidebar");
     const overlay = document.getElementById("overlay");
