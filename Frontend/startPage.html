@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Sudoku spielen und eigene Rätsel erstellen.">
+    <meta name="author" content="Dein Name">
+    <title>Sudoku Startseite</title>
+    <link rel="icon" href="img/favicon.ico">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <!-- HEADER -->
+    <header class="heading">
+        <div class="logoContainer">
+            <img class="logo" src="img/blackLogo.png" alt="Sudoku Logo">
+        </div>
+        <button id="openSettings" aria-label="Einstellungen öffnen">
+            <img src="img/settings_colorful.png" alt="Einstellungen">
+        </button>
+    </header>
+
+    <!-- HAUPTINHALT -->
+    <main class="gameContainer">
+        <nav class="menuWrapper">
+            <div class="menu">
+                <button id="openRules" class="menuButton">Regeln</button>
+                <button class="menuButton">Spielen</button>
+                <a href="create.html">
+                    <button class="menuButton">Erstellen</button>
+                </a>
+            </div>
+        </nav>
+    </main>
+
+    <!-- OVERLAY für Sidebar und Rules -->
+    <div id="overlay" class="overlay"></div>
+
+    <!-- SIDEBAR EINSTELLUNGEN -->
+    <aside id="sidebar" class="sidebar">
+        <h2>Einstellungen</h2>
+        <div class="toggleContainer">
+            <label class="toggleSwitch">
+                <p>Dark Mode</p>
+                <input type="checkbox" id="toggle1">
+                <span class="slider"></span>
+            </label>
+            <label class="toggleSwitch">
+                <p>Fehlerprüfung</p>
+                <input type="checkbox" id="toggle2">
+                <span class="slider"></span>
+            </label>
+            <label class="toggleSwitch">
+                <p>Doppelte Zahlen prüfen</p>
+                <input type="checkbox" id="toggle3">
+                <span class="slider"></span>
+            </label>
+            <label class="toggleSwitch">
+                <p>Gleiche Zahlen hervorheben</p>
+                <input type="checkbox" id="toggle4">
+                <span class="slider"></span>
+            </label>
+            <label class="toggleSwitch">
+                <p>Hintergrund hervorheben</p>
+                <input type="checkbox" id="toggle5">
+                <span class="slider"></span>
+            </label>
+        </div>
+    </aside>
+
+    <!-- SIDEBAR REGELN -->
+    <aside id="rulesSidebar" class="rules-sidebar">
+        <div class="rules-content">
+            <h1>Sudoku – Regelwerk</h1>
+
+            <h2>1. Ziel des Spiels</h2>
+            <p>Das Ziel von Sudoku ist es, ein 9×9-Gitter so auszufüllen, dass jede Zeile, jede Spalte und jedes der neun 3×3-Unterquadrate alle Ziffern von 1 bis 9 genau einmal enthält.</p>
+
+            <h2>2. Spielbrett</h2>
+            <ul>
+                <li>Das Brett besteht aus 9 Reihen, 9 Spalten und 9 Blöcken (je 3×3 Felder).</li>
+                <li>Einige Zahlen sind zu Beginn vorgegeben.</li>
+                <li>Die restlichen Felder müssen durch logisches Denken ausgefüllt werden – Raten ist nicht erlaubt!</li>
+            </ul>
+
+            <h2>3. Grundregeln</h2>
+            <ul>
+                <li>Jede Zahl darf nur einmal pro Reihe vorkommen.</li>
+                <li>Jede Zahl darf nur einmal pro Spalte vorkommen.</li>
+                <li>Jede Zahl darf nur einmal pro 3×3-Block vorkommen.</li>
+            </ul>
+
+            <p>In keinem Bereich dürfen Zahlen doppelt vorkommen.</p>
+
+            <button id="closeRules" class="menuButton">Schließen</button>
+        </div>
+    </aside>
+
+    <!-- POPUP SPIELSTART -->
+    <div id="playPopup" class="popup">
+        <div class="popupContent">
+            <h2>Spiel starten</h2>
+            <ul class="difficultyList">
+                <li><button class="popupButton" data-difficulty="easy">Einfach</button></li>
+                <li><button class="popupButton" data-difficulty="medium">Mittel</button></li>
+                <li><button class="popupButton" data-difficulty="hard">Schwer</button></li>
+                <li><button class="popupButton" data-difficulty="continue">Fortsetzen</button></li>
+            </ul>
+        </div>
+    </div>
+
+    <script src="settings.js"></script>
+    <script src="startPage.js"></script>
+</body>
+</html>
