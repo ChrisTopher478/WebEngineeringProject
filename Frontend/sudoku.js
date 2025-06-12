@@ -1,28 +1,54 @@
-// === Globale Zustände ===
-const state = {
-    sudokuBoard: [],
-    solutionBoard: [],
-    activeCell: null,
-    isNoteMode: false,
-};
+// === Konstanten ===
+const BOARD_SIZE = 9;
 
-document.addEventListener("DOMContentLoaded", () => {
-    initGame();
-});
+// === Globale Zustände ===
+class SudokuState {
+    constructor() {
+        this.board = [];
+        this.solution = [];
+        this.activeCell = null;
+        this.isNoteMode = false;
+        this.undoStack = [];
+        this.redoStack = [];
+    }
+
+    saveState() {
+        this.undoStack.push(JSON.stringify(this.board));
+        this.redoStack = []; 
+    }
+
+    undo() {
+        if (this.undoStack.length === 0) return;
+        this.redoStack.push(JSON.stringify(this.board));
+        this.board = JSON.parse(this.undoStack.pop());
+        renderBoard();
+    }
+
+    redo() {
+        if (this.redoStack.length === 0) return;
+        this.undoStack.push(JSON.stringify(this.board));
+        this.board = JSON.parse(this.redoStack.pop());
+        renderBoard();
+    }
+}
+
+const state = new SudokuState();
 
 // === Initialisierung ===
+document.addEventListener("DOMContentLoaded", () => initGame());
+
 async function initGame() {
-    setupEventHandlers();
     await loadSudoku();
+    setupEventHandlers();
     renderBoard();
 }
 
 async function loadSudoku() {
     try {
-        const response = await fetch('sudoku.json');
+        const response = await fetch("sudoku.json");
         const data = await response.json();
 
-        state.sudokuBoard = data.sudoku.map(row =>
+        state.board = data.sudoku.map(row =>
             row.map(cell => ({
                 value: cell !== 0 ? cell : null,
                 notes: [],
@@ -30,58 +56,47 @@ async function loadSudoku() {
                 invalid: false
             }))
         );
-
-        state.solutionBoard = data.solution;
-    } catch (error) {
-        console.error("Fehler beim Laden des Sudokus:", error);
+        state.solution = data.solution;
+    } catch (err) {
+        console.error("Fehler beim Laden des Sudoku:", err);
     }
 }
 
-// === Event-Handling ===
+// === Event Handling ===
 function setupEventHandlers() {
-    initNumPadEvents();
-    initSidebarEvents();
-}
+    document.getElementById("undoButton").addEventListener("click", () => state.undo());
+    document.getElementById("redoButton").addEventListener("click", () => state.redo());
 
-function initNumPadEvents() {
-    document.querySelectorAll(".numButton").forEach(button => {
-        button.addEventListener("click", () => handleNumPadClick(button));
+    document.querySelector(".numPad").addEventListener("click", e => {
+        if (e.target.classList.contains("numButton")) {
+            handleNumPadClick(e.target);
+        }
     });
-}
 
-function initSidebarEvents() {
     const openSettingsButton = document.getElementById("openSettings");
     const sidebar = document.getElementById("sidebar");
     const overlay = document.getElementById("overlay");
 
-    openSettingsButton.addEventListener("click", () => {
-        sidebar.classList.toggle("open");
-        overlay.classList.toggle("active");
-    });
-
-    overlay.addEventListener("click", () => {
-        sidebar.classList.remove("open");
-        overlay.classList.remove("active");
-    });
+    openSettingsButton.addEventListener("click", () => toggleSidebar(true));
+    overlay.addEventListener("click", () => toggleSidebar(false));
 }
 
-// === Board zeichnen ===
+function toggleSidebar(open) {
+    document.getElementById("sidebar").classList.toggle("open", open);
+    document.getElementById("overlay").classList.toggle("active", open);
+}
+
+// === Board Rendering ===
 function renderBoard() {
     const table = document.getElementById("sudoku");
     table.innerHTML = "";
 
-    state.sudokuBoard.forEach((row, rowIndex) => {
+    state.board.forEach((row, rowIndex) => {
         const tr = table.insertRow();
-        row.forEach((cellData, colIndex) => {
+        row.forEach((cell, colIndex) => {
             const td = tr.insertCell();
-
-            td.classList.toggle("invalid", cellData.invalid);
-
-            const container = document.createElement("div");
-            container.classList.add("cellContainer");
-            renderCellContent(container, cellData);
-            td.appendChild(container);
-
+            td.classList.toggle("invalid", cell.invalid);
+            renderCellContent(td, cell);
             applyCellBorders(td, rowIndex, colIndex);
             td.addEventListener("click", () => {
                 state.activeCell = { row: rowIndex, col: colIndex };
@@ -90,42 +105,45 @@ function renderBoard() {
     });
 }
 
-function renderCellContent(container, cellData) {
-    container.innerHTML = "";
+function renderCellContent(td, cell) {
+    td.innerHTML = "";
+    const container = document.createElement("div");
+    container.classList.add("cellContainer");
 
-    if (cellData.fixed) {
-        container.textContent = cellData.value;
+    if (cell.fixed) {
+        container.textContent = cell.value;
         container.classList.add("fixed");
-    } else if (cellData.value) {
+    } else if (cell.value) {
         const valueDiv = document.createElement("div");
         valueDiv.classList.add("cellValue");
-        valueDiv.textContent = cellData.value;
+        valueDiv.textContent = cell.value;
         container.appendChild(valueDiv);
-    } else if (cellData.notes.length > 0) {
+    } else if (cell.notes.length > 0) {
         const notesDiv = document.createElement("div");
         notesDiv.classList.add("notes");
-
-        for (let n = 1; n <= 9; n++) {
+        for (let n = 1; n <= BOARD_SIZE; n++) {
             const note = document.createElement("span");
             note.classList.add("note");
-            note.textContent = cellData.notes.includes(n) ? n : "";
+            note.textContent = cell.notes.includes(n) ? n : "";
             notesDiv.appendChild(note);
         }
         container.appendChild(notesDiv);
     }
+
+    td.appendChild(container);
 }
 
 function applyCellBorders(cell, rowIndex, colIndex) {
-    const standard = "1px solid #999";
     const thick = "2px solid #000";
+    const thin = "1px solid #999";
 
-    cell.style.borderTop = (rowIndex === 0 || rowIndex % 3 === 0) ? thick : standard;
-    cell.style.borderBottom = (rowIndex === 8) ? thick : standard;
-    cell.style.borderLeft = (colIndex === 0 || colIndex % 3 === 0) ? thick : standard;
-    cell.style.borderRight = (colIndex === 8) ? thick : standard;
+    cell.style.borderTop = (rowIndex === 0 || rowIndex % 3 === 0) ? thick : thin;
+    cell.style.borderLeft = (colIndex === 0 || colIndex % 3 === 0) ? thick : thin;
+    cell.style.borderRight = (colIndex === 8) ? thick : thin;
+    cell.style.borderBottom = (rowIndex === 8) ? thick : thin;
 }
 
-// === Nummernfeld-Verarbeitung ===
+// === Logik für Eingaben ===
 function handleNumPadClick(button) {
     const value = button.dataset.value;
 
@@ -138,29 +156,33 @@ function handleNumPadClick(button) {
     if (!state.activeCell) return;
 
     const { row, col } = state.activeCell;
-    const cellData = state.sudokuBoard[row][col];
+    const cell = state.board[row][col];
 
-    if (cellData.fixed) return;
+    if (cell.fixed) return;
 
     const numValue = parseInt(value);
+    state.saveState();
 
     if (state.isNoteMode) {
-        toggleNote(cellData, numValue);
+        toggleNote(cell, numValue);
     } else {
-        cellData.value = numValue;
-        cellData.notes = [];
-
-        cellData.invalid = state.solutionBoard.length > 0 && numValue !== state.solutionBoard[row][col];
+        cell.value = numValue;
+        cell.notes = [];
+        cell.invalid = !isValidInput(row, col, numValue);
     }
 
     renderBoard();
 }
 
-function toggleNote(cellData, numValue) {
-    if (cellData.notes.includes(numValue)) {
-        cellData.notes = cellData.notes.filter(n => n !== numValue);
+function toggleNote(cell, numValue) {
+    if (cell.notes.includes(numValue)) {
+        cell.notes = cell.notes.filter(n => n !== numValue);
     } else {
-        cellData.notes.push(numValue);
-        cellData.notes.sort();
+        cell.notes.push(numValue);
+        cell.notes.sort();
     }
+}
+
+function isValidInput(row, col, value) {
+    return value === state.solution[row][col];
 }
