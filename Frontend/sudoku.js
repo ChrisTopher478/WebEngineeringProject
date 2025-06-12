@@ -32,7 +32,8 @@ function renderSudokuBoard() {
                 cell.textContent = sudoku[rowIndex][colIndex];
                 cell.classList.add("fixed");
             } else {
-                const input = createSudokuInput();
+                const input = createCellInput
+                ();
                 cell.appendChild(input);
             }
 
@@ -41,7 +42,8 @@ function renderSudokuBoard() {
     }
 }
 
-function createSudokuInput() {
+function createCellInput
+() {
     const input = document.createElement("input");
     input.type = "text";
     input.maxLength = 1;
