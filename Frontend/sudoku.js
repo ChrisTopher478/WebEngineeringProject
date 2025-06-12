@@ -2,6 +2,7 @@
 let sudokuBoard = [];
 let activeCell = null;
 let isNoteMode = false;
+let solutionBoard = [];
 
 document.addEventListener("DOMContentLoaded", initGame);
 
@@ -44,7 +45,11 @@ function renderBoard() {
         for (let colIndex = 0; colIndex < 9; colIndex++) {
             const cell = row.insertCell();
             const cellData = sudokuBoard[rowIndex][colIndex];
-            
+
+            if (cellData.invalid) {
+                cell.classList.add("invalid");
+            }
+
             const cellContainer = document.createElement("div");
             cellContainer.classList.add("cellContainer");
 
@@ -67,7 +72,7 @@ function renderCellContent(cellData, container) {
         container.textContent = cellData.value;
         container.classList.add("fixed");
     } else if (cellData.value) {
-        addCellValue(container, cellData.value);
+        addCellValue(container, cellData.value, cellData.invalid);
     } else if (cellData.notes.length > 0) {
         addCellNotes(container, cellData.notes);
     }
@@ -133,6 +138,13 @@ function handleNumPadClick(button) {
     } else {
         cellData.value = numValue;
         cellData.notes = [];
+
+        // Fehlerprüfung
+        if (solutionBoard.length > 0 && numValue !== solutionBoard[row][col]) {
+            cellData.invalid = true;  // Fehlerstatus setzen
+        } else {
+            cellData.invalid = false;
+        }
     }
 
     renderBoard();
@@ -145,6 +157,27 @@ function toggleNote(cellData, numValue) {
     } else {
         cellData.notes.push(numValue);
         cellData.notes.sort();
+    }
+}
+
+// fehlererkennung
+async function loadSudoku() {
+    try {
+        const response = await fetch('sudoku.json');
+        const data = await response.json();
+        
+        sudokuBoard = data.sudoku.map(row => 
+            row.map(cell => ({
+                value: cell !== 0 ? cell : null,
+                notes: [],
+                fixed: cell !== 0
+            }))
+        );
+
+        solutionBoard = data.solution;  // Lösung laden
+        renderBoard();
+    } catch (error) {
+        console.error("Fehler beim Laden des Sudokus:", error);
     }
 }
 
