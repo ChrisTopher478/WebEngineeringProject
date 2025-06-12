@@ -320,3 +320,15 @@ input {
     justify-content: center;
     overflow: hidden;
 }
+
+/* =======================
+   Fehler markierung
+======================= */
+.invalid {
+    background-color: #ffcccc; /* ganzer Hintergrund schön hellrot */
+}
+
+.invalid .cellValue {
+    font-weight: bold;
+    color: red;
+}
