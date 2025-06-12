@@ -15,7 +15,7 @@
     --num-button-width: 2.5rem;
     --num-button-height: 1.6rem;
     --header-height: 5.5rem;
-    --top: 1000
+    --sidebar-z-index: 1000;
 }
 
 /* =======================
@@ -76,7 +76,6 @@ body {
     align-items: center;
 }
 
-/* Das Sudoku-Spielfeld wirklich exakt mittig */
 .boardWrapper {
     position: absolute;
     top: 50%;
@@ -84,7 +83,6 @@ body {
     transform: translate(-50%, -50%);
     z-index: 1;
 }
-
 
 table {
     border-collapse: collapse;
@@ -95,7 +93,9 @@ td {
     width: var(--cell-size);
     height: var(--cell-size);
     text-align: center;
-    /* padding: 0; */
+    padding: 0;
+    box-sizing: border-box;
+    overflow: hidden;
 }
 
 input {
@@ -105,11 +105,9 @@ input {
     text-align: center;
     border: none;
     padding: 0;
+    caret-color: transparent;
 }
 
-/* =======================
-   Spezielle Felder
-======================= */
 .fixed {
     background-color: var(--highlight-color);
     font-weight: bold;
@@ -140,33 +138,36 @@ input {
     padding: 0;
     background-color: var(--button-bg);
     border: 1px solid var(--border-color);
+    transition: background-color 0.3s;
 }
 
 .numButton:hover {
     background-color: var(--button-hover-bg);
 }
 
+.numButton.active {
+    background-color: lightblue;
+}
+
 /* =======================
    Sidebar & Overlay
 ======================= */
-
 .sidebar {
     position: fixed;
     top: 0;
-    right: 0; /* immer gleiche Position */
+    right: 0;
     width: 300px;
     height: 100%;
-    background-color: #fff;
+    background-color: var(--bg-color);
     box-shadow: -2px 0 5px rgba(0,0,0,0.3);
-    z-index: var(--top);
+    z-index: var(--sidebar-z-index);
     padding: 1rem;
-    display: none; /* Standardmäßig unsichtbar */
+    display: none;
 }
 
 .sidebar.open {
-    display: block; /* Nur sichtbar, wenn offen */
+    display: block;
 }
-
 
 .overlay {
     position: fixed;
@@ -189,7 +190,6 @@ input {
 /* =======================
    Toggle Switches
 ======================= */
-
 .toggleContainer {
     display: flex;
     flex-direction: column;
@@ -200,7 +200,7 @@ input {
 .toggleSwitch {
     position: relative;
     display: flex;
-    justify-content: space-between; /* verteilt Text links und Schalter rechts */
+    justify-content: space-between;
     align-items: center;
     font-size: 1rem;
     cursor: pointer;
@@ -244,9 +244,8 @@ input {
 }
 
 /* ==============================
-   Buttons Links vom spielfeld
+   Buttons Links vom Spielfeld
 ============================== */
-
 .leftSideButtons {
     position: absolute;
     left: 50%;
@@ -257,28 +256,7 @@ input {
     gap: 0.5rem;
 }
 
-.leftSideButton {
-    width: 5rem;
-    height: 2rem;
-    font-size: 1rem;
-    cursor: pointer;
-    background-color: var(--button-bg);
-    border: 1px solid var(--border-color);
-    transition: background-color 0.3s;
-}
-
-.leftSideButton:hover {
-    background-color: var(--button-hover-bg);
-}
-
-.splitButtons {
-    display: flex;
-    width: 5rem; /* exakt so breit wie die ursprünglichen sideButton */
-    gap: 0.2rem; /* kleiner Abstand zwischen den beiden Buttons */
-}
-
-.leftSideButtonSmall {
-    width: calc((5rem - 0.2rem) / 2);
+.leftSideButton, .leftSideButtonSmall {
     height: 2rem;
     font-size: 0.9rem;
     cursor: pointer;
@@ -287,16 +265,58 @@ input {
     transition: background-color 0.3s;
 }
 
-.leftSideButtonSmall:hover {
+.leftSideButton {
+    width: 5rem;
+}
+
+.leftSideButtonSmall {
+    width: calc((5rem - 0.2rem) / 2);
+}
+
+.leftSideButton:hover, .leftSideButtonSmall:hover {
     background-color: var(--button-hover-bg);
 }
 
-/* =======================
-   Remove cursor
-======================= */
-
-input {
-    caret-color: transparent;
+.splitButtons {
+    display: flex;
+    width: 5rem;
+    gap: 0.2rem;
 }
 
-/* next stuff */
+/* =======================
+   Notes Darstellung
+======================= */
+.cellContainer {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    font-size: 1.2rem;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.cellValue {
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.notes {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    font-size: 0.4rem;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.note {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
