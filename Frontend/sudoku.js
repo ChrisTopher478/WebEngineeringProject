@@ -14,7 +14,7 @@ class SudokuState {
 
     saveState() {
         this.undoStack.push(JSON.stringify(this.board));
-        this.redoStack = []; 
+        this.redoStack = [];
     }
 
     undo() {
@@ -38,15 +38,36 @@ const state = new SudokuState();
 document.addEventListener("DOMContentLoaded", () => initGame());
 
 async function initGame() {
+    loadSettings();
+    const storedData = localStorage.getItem("sudokuData");
+    if (!storedData) {
+        alert("Kein Sudoku gefunden. Bitte starte ein Spiel über die Startseite.");
+        return;
+    }
+
     await loadSudoku();
     setupEventHandlers();
     renderBoard();
+    validateBoard();
+    setupSettingsListeners();
 }
 
 async function loadSudoku() {
     try {
-        const response = await fetch("sudoku.json");
-        const data = await response.json();
+        const storedData = localStorage.getItem("sudokuData");
+        if (!storedData) {
+            console.error("Kein Sudoku im Speicher gefunden.");
+            return;
+        }
+
+        const data = JSON.parse(storedData);
+
+        // Überprüfung auf korrektes Format
+        if (!data.sudoku || !data.solution) {
+            console.error("Datenformat ungültig:", data);
+            alert("Fehler beim Laden des Sudokus. Bitte erneut versuchen.");
+            return;
+        }
 
         state.board = data.sudoku.map(row =>
             row.map(cell => ({
@@ -64,36 +85,26 @@ async function loadSudoku() {
 
 // === Event Handling ===
 function setupEventHandlers() {
-    // Undo / Redo Buttons
     document.getElementById("undoButton").addEventListener("click", () => state.undo());
     document.getElementById("redoButton").addEventListener("click", () => state.redo());
-
-    // Löschen Button
     document.getElementById("deleteButton").addEventListener("click", () => {
         if (!state.activeCell) return;
-
         const { row, col } = state.activeCell;
         const cell = state.board[row][col];
-
-        if (cell.fixed) return;  // feste Zellen dürfen nicht gelöscht werden
-
+        if (cell.fixed) return;
         state.saveState();
-
         cell.value = null;
         cell.notes = [];
         cell.invalid = false;
-
         renderBoard();
     });
 
-    // Nummernfeld (NumPad)
     document.querySelector(".numPad").addEventListener("click", e => {
         if (e.target.classList.contains("numButton")) {
             handleNumPadClick(e.target);
         }
     });
 
-    // Sidebar öffnen & schließen
     const openSettingsButton = document.getElementById("openSettings");
     const sidebar = document.getElementById("sidebar");
     const overlay = document.getElementById("overlay");
@@ -189,7 +200,13 @@ function handleNumPadClick(button) {
     } else {
         cell.value = numValue;
         cell.notes = [];
-        cell.invalid = !isValidInput(row, col, numValue);
+
+        const settings = window.getSettings();
+        if (settings.checkMistakes) {
+            cell.invalid = !isValidInput(row, col, numValue);
+        } else {
+            cell.invalid = false;
+        }
     }
 
     renderBoard();
@@ -207,3 +224,23 @@ function toggleNote(cell, numValue) {
 function isValidInput(row, col, value) {
     return value === state.solution[row][col];
 }
+
+function validateBoard() {
+    const settings = window.getSettings();
+    if (!settings.checkMistakes) {
+        state.board.forEach(row => row.forEach(cell => cell.invalid = false));
+    } else {
+        state.board.forEach((row, rowIndex) => {
+            row.forEach((cell, colIndex) => {
+                if (!cell.fixed && cell.value) {
+                    cell.invalid = !isValidInput(rowIndex, colIndex, cell.value);
+                } else {
+                    cell.invalid = false;
+                }
+            });
+        });
+    }
+    renderBoard();
+}
+
+window.validateBoard = validateBoard;
