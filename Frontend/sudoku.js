@@ -50,7 +50,34 @@ async function initGame() {
     renderBoard();
     validateBoard();
     setupSettingsListeners();
+    startTimer();
 }
+
+let timerInterval;
+let startTime;
+
+function startTimer() {
+    startTime = Date.now();
+
+    timerInterval = setInterval(() => {
+        const elapsed = Date.now() - startTime;
+        const minutes = Math.floor(elapsed / 60000);
+        const seconds = Math.floor((elapsed % 60000) / 1000);
+        document.getElementById("timer").textContent =
+            `${pad(minutes)}:${pad(seconds)}`;
+    }, 1000);
+}
+
+function resetTimer() {
+    clearInterval(timerInterval);
+    document.getElementById("timer").textContent = "00:00";
+    startTimer();
+}
+
+function pad(number) {
+    return number.toString().padStart(2, '0');
+}
+
 
 async function loadSudoku() {
     try {
@@ -98,6 +125,7 @@ function setupEventHandlers() {
         cell.invalid = false;
         renderBoard();
     });
+    document.getElementById("resetButton").addEventListener("click", resetGame);
 
     document.querySelector(".numPad").addEventListener("click", e => {
         if (e.target.classList.contains("numButton")) {
@@ -244,3 +272,17 @@ function validateBoard() {
 }
 
 window.validateBoard = validateBoard;
+
+function resetGame() {
+    state.board.forEach(row => {
+        row.forEach(cell => {
+            if (!cell.fixed) {
+                cell.value = null;
+                cell.notes = [];
+                cell.invalid = false;
+            }
+        });
+    });
+    renderBoard();
+    resetTimer();
+}
