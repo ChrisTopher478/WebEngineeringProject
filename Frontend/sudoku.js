@@ -50,7 +50,28 @@ async function initGame() {
     renderBoard();
     validateBoard();
     setupSettingsListeners();
+    startTimer();
 }
+
+let timerInterval;
+let startTime;
+
+function startTimer() {
+    startTime = Date.now();
+
+    timerInterval = setInterval(() => {
+        const elapsed = Date.now() - startTime;
+        const minutes = Math.floor(elapsed / 60000);
+        const seconds = Math.floor((elapsed % 60000) / 1000);
+        document.getElementById("timer").textContent =
+            `${pad(minutes)}:${pad(seconds)}`;
+    }, 1000);
+}
+
+function pad(number) {
+    return number.toString().padStart(2, '0');
+}
+
 
 async function loadSudoku() {
     try {
