@@ -338,6 +338,19 @@ input {
     color: var(--error-color);
 }
 
+/* =======================
+   Timer
+======================= */
+#timerContainer {
+    position: absolute;
+    top: calc(50% - (var(--cell-size) * 9 / 2) - 2rem);
+    left: 50%;
+    transform: translateX(calc(-9 * var(--cell-size) / 2));
+    font-size: 1.5rem;
+    font-weight: bold;
+    z-index: 2;
+}
+
 /* ======================================================================================
 
                                 startPage styling
