@@ -7,7 +7,22 @@ let currentSettings = {
     backgroundHighlight: false,
 };
 
-// Hilfsfunktion: hole Toggle-Element anhand ID
+// Cookie-Hilfsfunktionen
+function setCookie(name, value, days = 365) {
+    const expires = new Date(Date.now() + days*24*60*60*1000).toUTCString();
+    document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/`;
+}
+
+function getCookie(name) {
+    const cookies = document.cookie.split("; ").reduce((acc, curr) => {
+        const [k, v] = curr.split("=");
+        acc[k] = v ? decodeURIComponent(v) : "";
+        return acc;
+    }, {});
+    return cookies[name];
+}
+
+// Hole Toggle-Element anhand ID
 function getToggle(id) {
     return document.getElementById(id);
 }
@@ -21,13 +36,13 @@ function saveSettings() {
         highlightNumbers: getToggle("toggle4")?.checked ?? false,
         backgroundHighlight: getToggle("toggle5")?.checked ?? false,
     };
-    localStorage.setItem("sudokuSettings", JSON.stringify(settings));
+    setCookie("sudokuSettings", JSON.stringify(settings));
     currentSettings = settings;
 }
 
 // Laden der gespeicherten Einstellungen
 function loadSettings() {
-    const stored = localStorage.getItem("sudokuSettings");
+    const stored = getCookie("sudokuSettings");
     if (!stored) return;
 
     const settings = JSON.parse(stored);
@@ -61,3 +76,10 @@ function setupSettingsListeners() {
 window.getSettings = () => currentSettings;
 window.loadSettings = loadSettings;
 window.setupSettingsListeners = setupSettingsListeners;
+
+// Automatisch beim Laden Settings anwenden
+document.addEventListener("DOMContentLoaded", () => {
+    loadSettings();
+    setupSettingsListeners();
+});
+
