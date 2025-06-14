@@ -55,7 +55,7 @@ async function initGame() {
     loadSettings();
     const storedData = localStorage.getItem("sudokuData");
     if (!storedData) {
-        alert("Kein Sudoku gefunden. Bitte starte ein Spiel über die Startseite.");
+        alert("No Sudoku has been found, please start again on homepage.");
         return;
     }
 
@@ -72,14 +72,50 @@ async function loadSudoku() {
     try {
         const data = JSON.parse(localStorage.getItem("sudokuData"));
         if (!data?.sudoku || !data?.solution) throw new Error("Ungültiges Datenformat");
-        state.board = data.sudoku.map(row => row.map(cell => ({
-            value: cell || null,
-            notes: [],
-            fixed: !!cell,
-            invalid: false,
-            conflict: { row: false, col: false, block: false }
-        })));
+
         state.solution = data.solution;
+
+        // Spielfeld wiederherstellen
+        if (data.currentState) {
+            state.board = data.currentState;
+        } else {
+            state.board = data.sudoku.map(row => row.map(cell => ({
+                value: cell || null,
+                notes: [],
+                fixed: !!cell,
+                invalid: false,
+                conflict: { row: false, col: false, block: false }
+            })));
+        }
+
+        // Fehleranzahl laden (falls vorhanden)
+        if (typeof data.errorCount === "number") {
+            errorCount = data.errorCount;
+        } else {
+            errorCount = 0;
+        }
+
+        // Zeit laden (falls vorhanden)
+        if (typeof data.elapsedTime === "number") {
+            state.loadedElapsedTime = data.elapsedTime;
+        } else {
+            state.loadedElapsedTime = 0;
+        }
+
+        // UndoStack laden (falls vorhanden)
+        if (Array.isArray(data.undoStack)) {
+            state.undoStack = data.undoStack;
+        } else {
+            state.undoStack = [];
+        }
+
+        // RedoStack laden (falls vorhanden)
+        if (Array.isArray(data.redoStack)) {
+            state.redoStack = data.redoStack;
+        } else {
+            state.redoStack = [];
+        }
+
     } catch (err) {
         console.error("Fehler beim Laden des Sudoku:", err);
         alert("Fehler beim Laden des Sudokus. Bitte erneut versuchen.");
@@ -93,7 +129,7 @@ function renderBoard() {
         `<tr>${row.map((cell, c) => renderCell(cell, r, c)).join("")}</tr>`
     ).join("");
     highlightSameNumbers();  
-    highlightPeers();  // <-- hier neu hinzufügen
+    highlightPeers(); 
 }
 
 window.renderBoard = renderBoard;
@@ -273,7 +309,7 @@ function setupEventHandlers() {
     document.getElementById("resumeButton").addEventListener("click", closePausePopup);
     document.getElementById("exitButton").addEventListener("click", () => {
     closePausePopup();
-    downloadCurrentGame();
+    saveCurrentGame();
     setTimeout(() => {
         window.location.href = "startPage.html";
     }, 500);
@@ -328,7 +364,7 @@ function resetGame() {
     renderBoard();
     errorCount = 0;
     updateErrorDisplay();
-    restartTimer();
+    restartTimer(true);
 }
 
 // === Sidebar ===
@@ -340,12 +376,14 @@ function toggleSidebar(open) {
 // === Timer ===
 let timerInterval, startTime;
 
-function restartTimer() {
+function restartTimer(resetElapsed = false) {
     clearInterval(timerInterval);
-    document.getElementById("timer").textContent = "00:00";
-    startTime = Date.now();
+
+    const initialElapsed = (resetElapsed ? 0 : (state.loadedElapsedTime || 0));
+    startTime = Date.now() - initialElapsed;
+
     timerInterval = setInterval(updateTimer, 1000);
-    errorCount = 0;
+    updateTimer();
     updateErrorDisplay();
 }
 
@@ -423,7 +461,7 @@ function openPausePopup() {
 
     // Fehlerstand aktualisieren
     const cappedErrors = Math.min(errorCount, 3);
-    document.getElementById("pauseErrorDisplay").textContent = `Fehler: ${cappedErrors}/3`;
+    document.getElementById("pauseErrorDisplay").textContent = `Mistakes: ${cappedErrors}/3`;
 
     document.getElementById("pausePopup").style.display = "flex";
 }
@@ -435,19 +473,24 @@ function closePausePopup() {
     document.getElementById("pausePopup").style.display = "none";
 }
 
-function downloadCurrentGame() {
+function saveCurrentGame() {
+    const startBoard = state.board.map(row =>
+        row.map(cell => cell.fixed ? cell.value : null)
+    );
+
+    const elapsed = Date.now() - startTime;
+
     const gameData = {
-        board: state.board,
-        solution: state.solution
+        sudoku: startBoard,
+        solution: state.solution,
+        currentState: state.board,
+        errorCount: errorCount,
+        elapsedTime: elapsed,
+        undoStack: state.undoStack,
+        redoStack: state.redoStack
     };
 
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(gameData));
-    const downloadAnchor = document.createElement('a');
-    downloadAnchor.setAttribute("href", dataStr);
-    downloadAnchor.setAttribute("download", "sudoku_backup.json");
-    document.body.appendChild(downloadAnchor);
-    downloadAnchor.click();
-    downloadAnchor.remove();
+    localStorage.setItem("sudokuContinueData", JSON.stringify(gameData));
 }
 
 function updateErrorDisplay() {
@@ -469,8 +512,8 @@ function updateErrorDisplay() {
     pauseErrorDisplayElement.style.display = "inline";
 
     const cappedErrors = Math.min(errorCount, 3);
-    errorCounterElement.textContent = `Fehler: ${cappedErrors}/3`;
-    pauseErrorDisplayElement.textContent = `Fehler: ${cappedErrors}/3`;
+    errorCounterElement.textContent = `Mistakes: ${cappedErrors}/3`;
+    pauseErrorDisplayElement.textContent = `Mistakes: ${cappedErrors}/3`;
 
     if (cappedErrors >= 3) {
         setTimeout(handleGameOver, 1000);
@@ -478,6 +521,6 @@ function updateErrorDisplay() {
 }
 
 function handleGameOver() {
-    alert("Zu viele Fehler! Das Spiel ist beendet.");
+    alert("Game over! You reached the mistakelimit.");
     window.location.href = "startPage.html";
 }
