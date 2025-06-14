@@ -472,8 +472,7 @@ td.fixed.conflict-block,
 }
 
 .pause-timer {
-    font-size: 1.4rem;
-    margin-bottom: 1rem;
+    font-size: 1rem;
     font-weight: bold;
 }
 
@@ -481,20 +480,24 @@ td.fixed.conflict-block,
     display: flex;
     justify-content: center;
     gap: 2rem;
-    margin-bottom: 1rem;
+    margin-bottom: 0.1rem;/* weniger Abstand zu den Buttons */
+    margin-top: 0.5rem; 
 }
 
 .pause-timer {
-    font-size: 1.4rem;
+    font-size: 1rem;
     font-weight: bold;
+}
+
+.pause-timer, .pause-error {
+    font-size: 1rem;
+    font-weight: bold;
+    margin: 0; /* alle margins der p-Tags entfernen */
 }
 
 .pause-error {
-    font-size: 1.4rem;
-    font-weight: bold;
     color: red;
 }
-
 
 /* =======================
   count mistakes
