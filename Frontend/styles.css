@@ -339,6 +339,42 @@ input {
 }
 
 /* =======================
+   Check for duplicates
+======================= */
+:root {
+    --conflict-bg: rgba(255, 0, 0, 0.1);
+    --conflict-color: var(--error-color);
+}
+
+td.fixed {
+    background-color: var(--highlight-color);
+}
+
+td.fixed.duplicate,
+td.fixed.conflict-row,
+td.fixed.conflict-col,
+td.fixed.conflict-block,
+.conflict-row,
+.conflict-col,
+.conflict-block {
+    background-color: var(--conflict-bg);
+}
+
+/* Zusätzliche Hervorhebung für den Zellwert */
+.duplicate .cellValue {
+    font-weight: bold;
+    color: var(--conflict-color);
+}
+
+/* Zahlenfarbe für Konflikt-Zellen */
+.conflict-row .cellValue,
+.conflict-col .cellValue,
+.conflict-block .cellValue {
+    color: var(--error-color); /* Hier definierst du die gewünschte Farbe, z.B. lila */
+    font-weight: bold;
+}
+
+/* =======================
    Timer
 ======================= */
 #timerContainer {
@@ -349,6 +385,32 @@ input {
     font-size: 1.5rem;
     font-weight: bold;
     z-index: 2;
+}
+
+/* =======================
+ 3x3/ playfield randering
+======================= */
+#sudoku td {
+    border: 1px solid var(--border-color);
+    box-sizing: border-box;
+}
+
+/* Dickere Linien für 3x3 Blöcke */
+#sudoku td:nth-child(3n+1) {
+    border-left: 2px solid var(--bold-border-color);
+}
+
+#sudoku tr:nth-child(3n+1) td {
+    border-top: 2px solid var(--bold-border-color);
+}
+
+/* Rechte und untere Rand dicker bei äußerem Spielfeldrand */
+#sudoku td:nth-child(9) {
+    border-right: 2px solid var(--bold-border-color);
+}
+
+#sudoku tr:nth-child(9) td {
+    border-bottom: 2px solid var(--bold-border-color);
 }
 
 /* ======================================================================================
