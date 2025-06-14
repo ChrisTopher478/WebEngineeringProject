@@ -3,7 +3,7 @@ let currentSettings = {
     darkMode: false,
     checkMistakes: false,
     checkDuplicates: false,
-    highlightNumbers: false,
+    highlightNumbers: true, // Standardwert hier auf true gesetzt
     backgroundHighlight: false,
 };
 
@@ -71,6 +71,7 @@ function setupSettingsListeners() {
         toggle.addEventListener('change', () => {
             saveSettings();
             window.validateBoard?.();
+            window.renderBoard?.();
         });
     });
 }
@@ -85,6 +86,5 @@ function initializeSettings() {
     setupSettingsListeners();
 }
 
-// Sichere Initialisierung um alles einmal auszuführen
 document.addEventListener("DOMContentLoaded", initializeSettings);
 window.addEventListener("pageshow", initializeSettings);
