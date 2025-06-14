@@ -413,12 +413,12 @@ td.fixed.conflict-block,
   notes
 ======================= */
 .highlight-same {
-    background-color: var(--note-color) !important;
+    background-color: rgba(51, 0, 255, 0.2);
     font-weight: bold;
 }
 
 .note.note-highlight {
-    color: var(--note-color);
+    color: rgb(51, 0, 255);
     font-weight: bold;
 }
 
