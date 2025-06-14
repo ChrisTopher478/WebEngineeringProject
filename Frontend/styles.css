@@ -13,6 +13,7 @@
     --error-color: red;
     --toggle-off: #ccc;
     --toggle-on: #4caf50;
+    --note-color: lightblue;
 
     --cell-size: 2rem;
     --input-size: 1.8rem;
@@ -413,6 +414,24 @@ td.fixed.conflict-block,
     border-bottom: 2px solid var(--bold-border-color);
 }
 
+/* =======================
+  notes
+======================= */
+.highlight-same {
+    background-color: var(--note-color) !important;
+}
+
+.note.note-highlight {
+    color: var(--note-color);
+    font-weight: bold;
+}
+
+
+.note {
+    color: black;
+    font-weight: normal;
+}
+
 /* ======================================================================================
 
                                 startPage styling
@@ -513,3 +532,6 @@ td.fixed.conflict-block,
 .popupButton:hover {
     background-color: var(--button-hover-bg);
 }
+
+/* test: */
+
