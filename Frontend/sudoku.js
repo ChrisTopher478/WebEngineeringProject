@@ -88,7 +88,10 @@ function renderBoard() {
     table.innerHTML = state.board.map((row, r) =>
         `<tr>${row.map((cell, c) => renderCell(cell, r, c)).join("")}</tr>`
     ).join("");
+    highlightSameNumbers();  // Hervorhebung nach jedem Render
 }
+
+window.renderBoard = renderBoard;
 
 function renderCell(cell, r, c) {
     const classes = [
@@ -110,9 +113,19 @@ function renderCell(cell, r, c) {
 
 function renderNotes(notes) {
     if (!notes.length) return "";
-    return `<div class="notes">${[...Array(9)].map((_, i) =>
-        `<span class="note">${notes.includes(i+1) ? i+1 : ""}</span>`).join("")}
-        </div>`;
+
+    let activeValue = null;
+    if (state.activeCell) {
+        const { row, col } = state.activeCell;
+        activeValue = state.board[row][col].value;
+    }
+
+    return `<div class="notes">${[...Array(9)].map((_, i) => {
+        const noteValue = i + 1;
+        const isActive = activeValue === noteValue;
+        const classes = isActive ? "note-highlight" : "";
+        return `<span class="note ${classes}">${notes.includes(noteValue) ? noteValue : ""}</span>`;
+    }).join("")}</div>`;
 }
 
 // === Konfliktprüfung ===
@@ -124,7 +137,7 @@ function checkConflicts() {
 
     if (!checkDuplicates) {
         renderBoard();
-        return; // Wenn Deaktiviert -> keine Konflikte prüfen
+        return;
     }
 
     const checkGroup = (getter, type) => {
@@ -234,6 +247,7 @@ function setupEventHandlers() {
         const cell = e.target.closest("td");
         if (!cell) return;
         state.activeCell = { row: parseInt(cell.dataset.row), col: parseInt(cell.dataset.col) };
+        renderBoard();
     });
 
     document.getElementById("openSettings").addEventListener("click", () => toggleSidebar(true));
@@ -284,3 +298,28 @@ function updateTimer() {
 }
 
 const pad = num => num.toString().padStart(2, '0');
+
+// === NEU: Highlight-Funktion ===
+function highlightSameNumbers() {
+    const settings = window.getSettings();
+    const highlightActive = settings?.highlightNumbers ?? true;
+    if (!highlightActive) return;
+
+    document.querySelectorAll("#sudoku td").forEach(cell => {
+        cell.classList.remove("highlight-same");
+    });
+
+    if (!state.activeCell) return;
+    const { row, col } = state.activeCell;
+    const targetValue = state.board[row][col].value;
+    if (!targetValue) return;
+
+    state.board.forEach((rowArr, r) => {
+        rowArr.forEach((cellObj, c) => {
+            if (cellObj.value === targetValue) {
+                const td = document.querySelector(`#sudoku td[data-row="${r}"][data-col="${c}"]`);
+                if (td) td.classList.add("highlight-same");
+            }
+        });
+    });
+}
