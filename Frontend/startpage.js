@@ -1,6 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
 
-    // DOM Elemente sauber sammeln 
     const elements = {
         settingsButton: document.getElementById("openSettings"),
         settingsSidebar: document.getElementById("sidebar"),
@@ -10,7 +9,32 @@ document.addEventListener("DOMContentLoaded", () => {
         playButton: document.querySelectorAll(".menuButton")[1],
         playPopup: document.getElementById("playPopup"),
         popupButtons: document.querySelectorAll(".popupButton"),
+        importButton: document.getElementById("importButton"),
+        fileInput: document.getElementById("fileInput"),
     };
+
+    elements.importButton?.addEventListener("click", () => {
+    elements.fileInput.click();
+});
+
+elements.fileInput?.addEventListener("change", (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        try {
+            const data = JSON.parse(e.target.result);
+            console.log("Importierte Daten:", data);
+            localStorage.setItem("sudokuData", JSON.stringify(data));
+            window.location.href = "index.html";
+        } catch (err) {
+            alert("Fehler beim Einlesen der Datei.");
+            console.error(err);
+        }
+    };
+    reader.readAsText(file);
+});
 
     // Utility Funktionen 
     const showElement = (el, show = true, display = "block") => {
