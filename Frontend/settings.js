@@ -3,84 +3,84 @@ let currentSettings = {
     darkMode: false,
     checkMistakes: false,
     checkDuplicates: false,
-    highlightNumbers: true, // Standardwert hier auf true gesetzt
+    highlightNumbers: true,
     backgroundHighlight: false,
 };
 
-// Cookie-Hilfsfunktionen
-function setCookie(name, value, days = 365) {
-    const expires = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toUTCString();
-    document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/`;
-}
+// Mapping zwischen Toggle-IDs und Setting-Schlüsseln
+const toggleMap = {
+    toggle1: 'darkMode',
+    toggle2: 'checkMistakes',
+    toggle3: 'checkDuplicates',
+    toggle4: 'highlightNumbers',
+    toggle5: 'backgroundHighlight',
+};
 
-function getCookie(name) {
-    const cookies = document.cookie.split("; ").reduce((acc, curr) => {
-        const [k, v] = curr.split("=");
-        acc[k] = v ? decodeURIComponent(v) : "";
+// Cookie-Hilfsfunktionen
+const setCookie = (name, value, days = 365) => {
+    const expires = new Date(Date.now() + days * 86400000).toUTCString();
+    document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/`;
+};
+
+const getCookie = (name) => {
+    return document.cookie
+        .split("; ")
+        .map(c => c.split("="))
+        .reduce((acc, [k, v]) => ({ ...acc, [k]: decodeURIComponent(v || "") }), {})[name];
+};
+
+const getToggle = (id) => document.getElementById(id);
+
+// Einstellungen speichern
+function saveSettings() {
+    const settings = Object.entries(toggleMap).reduce((acc, [id, key]) => {
+        acc[key] = getToggle(id)?.checked ?? false;
         return acc;
     }, {});
-    return cookies[name];
-}
-
-function getToggle(id) {
-    return document.getElementById(id);
-}
-
-function saveSettings() {
-    const settings = {
-        darkMode: getToggle("toggle1")?.checked ?? false,
-        checkMistakes: getToggle("toggle2")?.checked ?? false,
-        checkDuplicates: getToggle("toggle3")?.checked ?? false,
-        highlightNumbers: getToggle("toggle4")?.checked ?? false,
-        backgroundHighlight: getToggle("toggle5")?.checked ?? false,
-    };
     setCookie("sudokuSettings", JSON.stringify(settings));
     currentSettings = settings;
 }
 
+// Einstellungen laden
 function loadSettings() {
     const stored = getCookie("sudokuSettings");
     if (!stored) return;
 
-    const settings = JSON.parse(stored);
-    currentSettings = settings;
+    try {
+        const settings = JSON.parse(stored);
+        currentSettings = settings;
 
-    const toggleMap = {
-        toggle1: 'darkMode',
-        toggle2: 'checkMistakes',
-        toggle3: 'checkDuplicates',
-        toggle4: 'highlightNumbers',
-        toggle5: 'backgroundHighlight',
-    };
-
-    Object.entries(toggleMap).forEach(([id, key]) => {
-        const toggle = getToggle(id);
-        if (toggle) toggle.checked = settings[key];
-    });
+        Object.entries(toggleMap).forEach(([id, key]) => {
+            const toggle = getToggle(id);
+            if (toggle) toggle.checked = settings[key];
+        });
+    } catch (e) {
+        console.error("Error while loading the saved settings:", e);
+    }
 }
 
+// Event-Listener für alle Toggles einrichten
 function setupSettingsListeners() {
-    // Vorher alle bestehenden Listener entfernen:
     document.querySelectorAll('.toggleSwitch input').forEach(toggle => {
-        const clone = toggle.cloneNode(true);
-        toggle.parentNode.replaceChild(clone, toggle);
+        toggle.replaceWith(toggle.cloneNode(true));
     });
 
-    // Jetzt saubere Listener setzen:
     document.querySelectorAll('.toggleSwitch input').forEach(toggle => {
         toggle.addEventListener('change', () => {
             saveSettings();
             window.validateBoard?.();
             window.renderBoard?.();
+            window.updateErrorDisplay?.();
         });
     });
 }
 
-// Export: Funktionen global verfügbar machen
+// Globale Exporte
 window.getSettings = () => currentSettings;
 window.loadSettings = loadSettings;
 window.setupSettingsListeners = setupSettingsListeners;
 
+// Initialisierung
 function initializeSettings() {
     loadSettings();
     setupSettingsListeners();

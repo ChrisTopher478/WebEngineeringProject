@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Sudoku spielen und eigene Rätsel erstellen.">
     <meta name="author" content="Dein Name">
-    <title>Sudoku Startseite</title>
+    <title>Sudoku Homepage</title>
     <link rel="icon" href="img/favicon.ico">
     <link rel="stylesheet" href="styles.css">
 </head>
@@ -25,10 +25,10 @@
     <main class="gameContainer">
         <nav class="menuWrapper">
             <div class="menu">
-                <button id="openRules" class="menuButton">Regeln</button>
-                <button class="menuButton">Spielen</button>
+                <button id="openRules" class="menuButton">Rules</button>
+                <button class="menuButton">Play</button>
                 <a href="create.html">
-                    <button class="menuButton">Erstellen</button>
+                    <button class="menuButton">Create</button>
                 </a>
             </div>
         </nav>
@@ -39,7 +39,7 @@
 
     <!-- SIDEBAR EINSTELLUNGEN -->
     <aside id="sidebar" class="sidebar">
-        <h2>Einstellungen</h2>
+        <h2>Settings</h2>
         <div class="toggleContainer">
             <label class="toggleSwitch">
                 <p>Dark Mode</p>
@@ -47,22 +47,22 @@
                 <span class="slider"></span>
             </label>
             <label class="toggleSwitch">
-                <p>Fehlerprüfung</p>
+                <p>Check for mistakes</p>
                 <input type="checkbox" id="toggle2">
                 <span class="slider"></span>
             </label>
             <label class="toggleSwitch">
-                <p>Doppelte Zahlen prüfen</p>
+                <p>Check for duplicates</p>
                 <input type="checkbox" id="toggle3">
                 <span class="slider"></span>
             </label>
             <label class="toggleSwitch">
-                <p>Gleiche Zahlen hervorheben</p>
+                <p>Highlight same numbers</p>
                 <input type="checkbox" id="toggle4">
                 <span class="slider"></span>
             </label>
             <label class="toggleSwitch">
-                <p>Hintergrund hervorheben</p>
+                <p>Backround highlighting</p>
                 <input type="checkbox" id="toggle5">
                 <span class="slider"></span>
             </label>
@@ -72,40 +72,38 @@
     <!-- SIDEBAR REGELN -->
     <aside id="rulesSidebar" class="rules-sidebar">
         <div class="rules-content">
-            <h1>Sudoku – Regelwerk</h1>
+            <h1>Sudoku – Rules</h1>
+            <h2>1. Objective of the Game</h2>
+            <p>The goal of Sudoku is to fill a 9×9 grid so that every row, every column, and each of the nine 3×3 subgrids contain all digits from 1 to 9 exactly once.</p>
 
-            <h2>1. Ziel des Spiels</h2>
-            <p>Das Ziel von Sudoku ist es, ein 9×9-Gitter so auszufüllen, dass jede Zeile, jede Spalte und jedes der neun 3×3-Unterquadrate alle Ziffern von 1 bis 9 genau einmal enthält.</p>
-
-            <h2>2. Spielbrett</h2>
+            <h2>2. Game Board</h2>
             <ul>
-                <li>Das Brett besteht aus 9 Reihen, 9 Spalten und 9 Blöcken (je 3×3 Felder).</li>
-                <li>Einige Zahlen sind zu Beginn vorgegeben.</li>
-                <li>Die restlichen Felder müssen durch logisches Denken ausgefüllt werden – Raten ist nicht erlaubt!</li>
+                <li>The board consists of 9 rows, 9 columns, and 9 blocks (each 3×3 cells).</li>
+                <li>Some numbers are pre-filled at the start.</li>
+                <li>The remaining cells must be filled using logical reasoning — guessing is not allowed!</li>
             </ul>
 
-            <h2>3. Grundregeln</h2>
+            <h2>3. Basic Rules</h2>
             <ul>
-                <li>Jede Zahl darf nur einmal pro Reihe vorkommen.</li>
-                <li>Jede Zahl darf nur einmal pro Spalte vorkommen.</li>
-                <li>Jede Zahl darf nur einmal pro 3×3-Block vorkommen.</li>
+                <li>Each number may appear only once per row.</li>
+                <li>Each number may appear only once per column.</li>
+                <li>Each number may appear only once per 3×3 block.</li>
             </ul>
+            <p>Numbers must not be duplicated in any area.</p>
 
-            <p>In keinem Bereich dürfen Zahlen doppelt vorkommen.</p>
-
-            <button id="closeRules" class="menuButton">Schließen</button>
+            <button id="closeRules" class="menuButton">Close</button>
         </div>
     </aside>
 
     <!-- POPUP SPIELSTART -->
     <div id="playPopup" class="popup">
         <div class="popupContent">
-            <h2>Spiel starten</h2>
+            <h2>Start Game</h2>
             <div class="difficultyButtons">
-                <button class="popupButton" data-difficulty="easy">Einfach</button>
-                <button class="popupButton" data-difficulty="medium">Mittel</button>
-                <button class="popupButton" data-difficulty="hard">Schwer</button>
-                <button class="popupButton" data-difficulty="continue">Fortsetzen</button>
+                <button class="popupButton" data-difficulty="easy">Easy</button>
+                <button class="popupButton" data-difficulty="medium">Medium</button>
+                <button class="popupButton" data-difficulty="hard">Hard</button>
+                <button class="popupButton" data-difficulty="continue">Continue</button>
             </div>
         </div>
     </div>

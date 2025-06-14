@@ -29,12 +29,13 @@
             </div>
             <button id="deleteButton" class="leftSideButton" type="button">Delete</button>
             <button id="resetButton" class="leftSideButton" type="button">Reset</button>
-            <button class="leftSideButton" type="button">Button 4</button>
+            <button id="pauseButton" class="leftSideButton" type="button">Pause</button>
         </nav>
 
         <!-- Sudoku-Spielfeld -->
         <div id="timerContainer">
             <span id="timer">00:00</span>
+            <span id="errorCounter" class="error-counter">Mistakes: 0/3</span>
         </div>
 
         <section class="boardWrapper">
@@ -96,6 +97,20 @@
             </label>
         </div>
     </aside>
+
+    <!-- PAUSE POPUP -->
+    <div id="pausePopup" class="popup">
+        <div class="popupContent">
+            <h2>Pause</h2>
+            <div id="pauseStatusContainer" class="pause-status">
+                <p id="pauseTimerDisplay" class="pause-timer">00:00</p>
+                <p id="pauseErrorDisplay" class="pause-error">Mistakes: 0/3</p>
+            </div>
+            <button id="resumeButton" class="popupButton">Continue</button>
+            <button id="restartButton" class="popupButton">no logik</button>
+            <button id="exitButton" class="popupButton">Exit Game</button>
+        </div>
+    </div>
 
     <script src="settings.js"></script>
     <script src="sudoku.js"></script>

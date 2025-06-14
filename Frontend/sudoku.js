@@ -11,6 +11,10 @@ class SudokuState {
         this.isNoteMode = false;
         this.undoStack = [];
         this.redoStack = [];
+        let timerInterval, startTime;
+        let pausedTime = 0;
+        let isPaused = false;
+        let errorCount = 0;
     }
 
     save() {
@@ -51,7 +55,7 @@ async function initGame() {
     loadSettings();
     const storedData = localStorage.getItem("sudokuData");
     if (!storedData) {
-        alert("Kein Sudoku gefunden. Bitte starte ein Spiel über die Startseite.");
+        alert("No Sudoku has been found, please start again on homepage.");
         return;
     }
 
@@ -68,14 +72,50 @@ async function loadSudoku() {
     try {
         const data = JSON.parse(localStorage.getItem("sudokuData"));
         if (!data?.sudoku || !data?.solution) throw new Error("Ungültiges Datenformat");
-        state.board = data.sudoku.map(row => row.map(cell => ({
-            value: cell || null,
-            notes: [],
-            fixed: !!cell,
-            invalid: false,
-            conflict: { row: false, col: false, block: false }
-        })));
+
         state.solution = data.solution;
+
+        // Spielfeld wiederherstellen
+        if (data.currentState) {
+            state.board = data.currentState;
+        } else {
+            state.board = data.sudoku.map(row => row.map(cell => ({
+                value: cell || null,
+                notes: [],
+                fixed: !!cell,
+                invalid: false,
+                conflict: { row: false, col: false, block: false }
+            })));
+        }
+
+        // Fehleranzahl laden (falls vorhanden)
+        if (typeof data.errorCount === "number") {
+            errorCount = data.errorCount;
+        } else {
+            errorCount = 0;
+        }
+
+        // Zeit laden (falls vorhanden)
+        if (typeof data.elapsedTime === "number") {
+            state.loadedElapsedTime = data.elapsedTime;
+        } else {
+            state.loadedElapsedTime = 0;
+        }
+
+        // UndoStack laden (falls vorhanden)
+        if (Array.isArray(data.undoStack)) {
+            state.undoStack = data.undoStack;
+        } else {
+            state.undoStack = [];
+        }
+
+        // RedoStack laden (falls vorhanden)
+        if (Array.isArray(data.redoStack)) {
+            state.redoStack = data.redoStack;
+        } else {
+            state.redoStack = [];
+        }
+
     } catch (err) {
         console.error("Fehler beim Laden des Sudoku:", err);
         alert("Fehler beim Laden des Sudokus. Bitte erneut versuchen.");
@@ -89,7 +129,7 @@ function renderBoard() {
         `<tr>${row.map((cell, c) => renderCell(cell, r, c)).join("")}</tr>`
     ).join("");
     highlightSameNumbers();  
-    highlightPeers();  // <-- hier neu hinzufügen
+    highlightPeers(); 
 }
 
 window.renderBoard = renderBoard;
@@ -178,17 +218,34 @@ function handleInput(value) {
     state.save();
 
     if (state.isNoteMode) {
-        cell.notes.includes(numValue) ?
-            cell.notes = cell.notes.filter(n => n !== numValue) :
+        if (cell.notes.includes(numValue)) {
+            cell.notes = cell.notes.filter(n => n !== numValue);
+        } else {
             cell.notes.push(numValue);
-        cell.notes.sort();
+            cell.notes.sort();
+        }
     } else {
         cell.value = numValue;
         cell.notes = [];
         clearNotesForPeers(row, col, numValue);
         const settings = window.getSettings();
-        cell.invalid = settings.checkMistakes ? !isValidInput(row, col, numValue) : false;
+
+        const wasInvalid = cell.invalid;
+        let isInvalid = false;
+
+        if (settings.checkMistakes) {
+            isInvalid = !isValidInput(row, col, numValue);
+            cell.invalid = isInvalid;
+
+            if (isInvalid && !wasInvalid) {
+                errorCount++;
+                updateErrorDisplay();
+            }
+        } else {
+            cell.invalid = false;
+        }
     }
+
     checkConflicts();
     renderBoard();
 }
@@ -216,14 +273,28 @@ function isValidInput(row, col, value) {
 
 function validateBoard() {
     const settings = window.getSettings();
+    const checkMistakes = settings?.checkMistakes ?? true;
+
+    let countErrors = 0;
+
     state.board.forEach((row, r) => {
         row.forEach((cell, c) => {
-            cell.invalid = (!cell.fixed && cell.value && settings.checkMistakes) ? !isValidInput(r, c, cell.value) : false;
+            if (!cell.fixed && cell.value) {
+                const isInvalid = checkMistakes ? !isValidInput(r, c, cell.value) : false;
+                cell.invalid = isInvalid;
+                if (isInvalid) countErrors++;
+            } else {
+                cell.invalid = false;
+            }
         });
     });
+
+    errorCount = countErrors;
+    updateErrorDisplay();
     checkConflicts();
     renderBoard();
 }
+
 window.validateBoard = validateBoard;
 
 // === Events ===
@@ -232,7 +303,26 @@ function setupEventHandlers() {
     document.getElementById("redoButton").addEventListener("click", () => state.redo());
     document.getElementById("deleteButton").addEventListener("click", deleteActiveCell);
     document.getElementById("resetButton").addEventListener("click", resetGame);
-    
+
+    // Pause-Popup Events
+    document.getElementById("pauseButton").addEventListener("click", openPausePopup);
+    document.getElementById("resumeButton").addEventListener("click", closePausePopup);
+    document.getElementById("exitButton").addEventListener("click", () => {
+    closePausePopup();
+    saveCurrentGame();
+    setTimeout(() => {
+        window.location.href = "startPage.html";
+    }, 500);
+});
+
+
+    // NEU: Schließen durch Klicken auf den Hintergrund
+    document.getElementById("pausePopup").addEventListener("click", (e) => {
+        if (e.target === document.getElementById("pausePopup")) {
+            closePausePopup();
+        }
+    });
+
     document.querySelector(".numPad").addEventListener("click", e => {
         if (!e.target.classList.contains("numButton")) return;
         const value = e.target.dataset.value;
@@ -272,7 +362,9 @@ function resetGame() {
     }));
     checkConflicts();
     renderBoard();
-    restartTimer();
+    errorCount = 0;
+    updateErrorDisplay();
+    restartTimer(true);
 }
 
 // === Sidebar ===
@@ -284,11 +376,15 @@ function toggleSidebar(open) {
 // === Timer ===
 let timerInterval, startTime;
 
-function restartTimer() {
+function restartTimer(resetElapsed = false) {
     clearInterval(timerInterval);
-    document.getElementById("timer").textContent = "00:00";
-    startTime = Date.now();
+
+    const initialElapsed = (resetElapsed ? 0 : (state.loadedElapsedTime || 0));
+    startTime = Date.now() - initialElapsed;
+
     timerInterval = setInterval(updateTimer, 1000);
+    updateTimer();
+    updateErrorDisplay();
 }
 
 function updateTimer() {
@@ -351,4 +447,80 @@ function highlightPeers() {
         const td = document.querySelector(`#sudoku td[data-row="${r}"][data-col="${c}"]`);
         if (td) td.classList.add("peer-highlight");
     });
+}
+
+function openPausePopup() {
+    clearInterval(timerInterval);
+    pausedTime = Date.now();
+
+    // Timer aktualisieren
+    const elapsed = pausedTime - startTime;
+    const minutes = Math.floor(elapsed / 60000);
+    const seconds = Math.floor((elapsed % 60000) / 1000);
+    document.getElementById("pauseTimerDisplay").textContent = `${pad(minutes)}:${pad(seconds)}`;
+
+    // Fehlerstand aktualisieren
+    const cappedErrors = Math.min(errorCount, 3);
+    document.getElementById("pauseErrorDisplay").textContent = `Mistakes: ${cappedErrors}/3`;
+
+    document.getElementById("pausePopup").style.display = "flex";
+}
+
+function closePausePopup() {
+    const pauseDuration = Date.now() - pausedTime;
+    startTime += pauseDuration;
+    timerInterval = setInterval(updateTimer, 1000);
+    document.getElementById("pausePopup").style.display = "none";
+}
+
+function saveCurrentGame() {
+    const startBoard = state.board.map(row =>
+        row.map(cell => cell.fixed ? cell.value : null)
+    );
+
+    const elapsed = Date.now() - startTime;
+
+    const gameData = {
+        sudoku: startBoard,
+        solution: state.solution,
+        currentState: state.board,
+        errorCount: errorCount,
+        elapsedTime: elapsed,
+        undoStack: state.undoStack,
+        redoStack: state.redoStack
+    };
+
+    localStorage.setItem("sudokuContinueData", JSON.stringify(gameData));
+}
+
+function updateErrorDisplay() {
+    const settings = window.getSettings();
+    const checkMistakes = settings?.checkMistakes ?? true;
+
+    const errorCounterElement = document.getElementById("errorCounter");
+    const pauseErrorDisplayElement = document.getElementById("pauseErrorDisplay");
+
+    if (!checkMistakes) {
+        // Fehleranzeige komplett ausblenden
+        errorCounterElement.style.display = "none";
+        pauseErrorDisplayElement.style.display = "none";
+        return;
+    }
+
+    // Fehleranzeige sichtbar machen
+    errorCounterElement.style.display = "inline";
+    pauseErrorDisplayElement.style.display = "inline";
+
+    const cappedErrors = Math.min(errorCount, 3);
+    errorCounterElement.textContent = `Mistakes: ${cappedErrors}/3`;
+    pauseErrorDisplayElement.textContent = `Mistakes: ${cappedErrors}/3`;
+
+    if (cappedErrors >= 3) {
+        setTimeout(handleGameOver, 1000);
+    }
+}
+
+function handleGameOver() {
+    alert("Game over! You reached the mistakelimit.");
+    window.location.href = "startPage.html";
 }

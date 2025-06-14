@@ -80,11 +80,16 @@ document.addEventListener("DOMContentLoaded", () => {
         const difficulty = difficulties[index];
         button.addEventListener("click", () => {
             if (difficulty === "continue") {
-                window.location.href = "index.html";
+                const savedGame = localStorage.getItem("sudokuContinueData");
+                if (savedGame) {
+                    localStorage.setItem("sudokuData", savedGame);
+                    window.location.href = "index.html";
+                } else {
+                    alert("No saved game found.");
+                }
             } else {
                 loadSudoku(difficulty);
             }
         });
     });
-
 });
