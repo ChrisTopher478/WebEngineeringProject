@@ -13,7 +13,7 @@
     --error-color: red;
     --toggle-off: #ccc;
     --toggle-on: #4caf50;
-    --note-color: lightblue;
+    --note-color: rgb(54, 125, 240);
 
     --cell-size: 2rem;
     --input-size: 1.8rem;
@@ -413,11 +413,12 @@ td.fixed.conflict-block,
   notes
 ======================= */
 .highlight-same {
-    background-color: var(--note-color) !important;
+    background-color: rgba(51, 0, 255, 0.2);
+    font-weight: bold;
 }
 
 .note.note-highlight {
-    color: var(--note-color);
+    color: rgb(51, 0, 255);
     font-weight: bold;
 }
 
@@ -431,7 +432,7 @@ td.fixed.conflict-block,
   background highlighting
 ======================= */
 .peer-highlight {
-    background-color: var(--highlight-color) !important;
+    background-color: var(--highlight-color);
 }
 
 /* =======================
@@ -507,9 +508,16 @@ td.fixed.conflict-block,
     font-weight: bold;
 }
 
+/* =======================
+   mark active cell
+======================= */
+.active-cell {
+    outline: 2px solid blue;
+}
+
 /* ======================================================================================
 
-                                startPage styling
+                                    startPage styling
    
 ====================================================================================== */
 .menuWrapper {
