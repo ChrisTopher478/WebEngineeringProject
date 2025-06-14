@@ -379,6 +379,10 @@ td.fixed.conflict-block,
     font-size: 1.5rem;
     font-weight: bold;
     z-index: 2;
+
+    display: flex;
+    justify-content: center;
+    gap: 2rem; /* Abstand zwischen Zeit und Fehleranzeige */
 }
 
 /* =======================
@@ -428,6 +432,79 @@ td.fixed.conflict-block,
 ======================= */
 .peer-highlight {
     background-color: var(--highlight-color) !important;
+}
+
+/* =======================
+  pause pop up
+======================= */
+.popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    display: none;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 7rem;
+    z-index: var(--sidebar-z-index);
+}
+
+.popupButtonGroup {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.popupButton {
+    padding: 0.8rem 1.2rem;
+    font-size: 1.1rem;
+    cursor: pointer;
+    background-color: var(--button-bg);
+    border: 1px solid var(--border-color);
+    transition: background-color 0.3s;
+}
+
+.popupButton:hover {
+    background-color: var(--button-hover-bg);
+}
+
+.pause-timer {
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+.pause-status {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-bottom: 0.1rem;/* weniger Abstand zu den Buttons */
+    margin-top: 0.5rem; 
+}
+
+.pause-timer {
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+.pause-timer, .pause-error {
+    font-size: 1rem;
+    font-weight: bold;
+    margin: 0; /* alle margins der p-Tags entfernen */
+}
+
+.pause-error {
+    color: red;
+}
+
+/* =======================
+  count mistakes
+======================= */
+#errorCounter {
+    color: red;
+    font-weight: bold;
 }
 
 /* ======================================================================================
