@@ -9,7 +9,7 @@ let currentSettings = {
 
 // Cookie-Hilfsfunktionen
 function setCookie(name, value, days = 365) {
-    const expires = new Date(Date.now() + days*24*60*60*1000).toUTCString();
+    const expires = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toUTCString();
     document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/`;
 }
 
@@ -22,12 +22,10 @@ function getCookie(name) {
     return cookies[name];
 }
 
-// Hole Toggle-Element anhand ID
 function getToggle(id) {
     return document.getElementById(id);
 }
 
-// Speichern der aktuellen Einstellungen
 function saveSettings() {
     const settings = {
         darkMode: getToggle("toggle1")?.checked ?? false,
@@ -40,7 +38,6 @@ function saveSettings() {
     currentSettings = settings;
 }
 
-// Laden der gespeicherten Einstellungen
 function loadSettings() {
     const stored = getCookie("sudokuSettings");
     if (!stored) return;
@@ -62,8 +59,14 @@ function loadSettings() {
     });
 }
 
-// Event Listener auf alle Toggle-Schalter einbinden
 function setupSettingsListeners() {
+    // Vorher alle bestehenden Listener entfernen:
+    document.querySelectorAll('.toggleSwitch input').forEach(toggle => {
+        const clone = toggle.cloneNode(true);
+        toggle.parentNode.replaceChild(clone, toggle);
+    });
+
+    // Jetzt saubere Listener setzen:
     document.querySelectorAll('.toggleSwitch input').forEach(toggle => {
         toggle.addEventListener('change', () => {
             saveSettings();
@@ -77,9 +80,11 @@ window.getSettings = () => currentSettings;
 window.loadSettings = loadSettings;
 window.setupSettingsListeners = setupSettingsListeners;
 
-// Automatisch beim Laden Settings anwenden
-document.addEventListener("DOMContentLoaded", () => {
+function initializeSettings() {
     loadSettings();
     setupSettingsListeners();
-});
+}
 
+// Sichere Initialisierung um alles einmal auszuführen
+document.addEventListener("DOMContentLoaded", initializeSettings);
+window.addEventListener("pageshow", initializeSettings);
