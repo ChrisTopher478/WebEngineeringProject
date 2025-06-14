@@ -88,7 +88,8 @@ function renderBoard() {
     table.innerHTML = state.board.map((row, r) =>
         `<tr>${row.map((cell, c) => renderCell(cell, r, c)).join("")}</tr>`
     ).join("");
-    highlightSameNumbers();  // Hervorhebung nach jedem Render
+    highlightSameNumbers();  
+    highlightPeers();  // <-- hier neu hinzufügen
 }
 
 window.renderBoard = renderBoard;
@@ -321,5 +322,33 @@ function highlightSameNumbers() {
                 if (td) td.classList.add("highlight-same");
             }
         });
+    });
+}
+
+function highlightPeers() {
+    const settings = window.getSettings();
+    const highlightActive = settings?.backgroundHighlight ?? true;
+
+    // Erst alle bisherigen Hervorhebungen entfernen
+    document.querySelectorAll("#sudoku td").forEach(cell => {
+        cell.classList.remove("peer-highlight");
+    });
+
+    if (!highlightActive) return;
+    if (!state.activeCell) return;
+
+    const { row, col } = state.activeCell;
+    const activeTd = document.querySelector(`#sudoku td[data-row="${row}"][data-col="${col}"]`);
+
+    // Nur dann grau markieren, wenn noch nicht blau markiert
+    if (activeTd && !activeTd.classList.contains("highlight-same")) {
+        activeTd.classList.add("peer-highlight");
+    }
+
+    // Peers normal markieren
+    const peers = getPeers(row, col);
+    peers.forEach(({ r, c }) => {
+        const td = document.querySelector(`#sudoku td[data-row="${r}"][data-col="${c}"]`);
+        if (td) td.classList.add("peer-highlight");
     });
 }

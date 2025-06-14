@@ -114,7 +114,7 @@ input {
 }
 
 .fixed {
-    background-color: var(--highlight-color);
+    /* background-color: var(--highlight-color); */
     font-weight: bold;
 }
 
@@ -305,7 +305,6 @@ input {
 }
 
 .cellValue {
-    font-weight: bold;
     font-size: 1.2rem;
 }
 
@@ -347,10 +346,6 @@ input {
     --conflict-color: var(--error-color);
 }
 
-td.fixed {
-    background-color: var(--highlight-color);
-}
-
 td.fixed.duplicate,
 td.fixed.conflict-row,
 td.fixed.conflict-col,
@@ -361,17 +356,15 @@ td.fixed.conflict-block,
     background-color: var(--conflict-bg);
 }
 
-/* Zusätzliche Hervorhebung für den Zellwert */
 .duplicate .cellValue {
     font-weight: bold;
     color: var(--conflict-color);
 }
 
-/* Zahlenfarbe für Konflikt-Zellen */
 .conflict-row .cellValue,
 .conflict-col .cellValue,
 .conflict-block .cellValue {
-    color: var(--error-color); /* Hier definierst du die gewünschte Farbe, z.B. lila */
+    color: var(--error-color); 
     font-weight: bold;
 }
 
@@ -396,7 +389,6 @@ td.fixed.conflict-block,
     box-sizing: border-box;
 }
 
-/* Dickere Linien für 3x3 Blöcke */
 #sudoku td:nth-child(3n+1) {
     border-left: 2px solid var(--bold-border-color);
 }
@@ -405,7 +397,6 @@ td.fixed.conflict-block,
     border-top: 2px solid var(--bold-border-color);
 }
 
-/* Rechte und untere Rand dicker bei äußerem Spielfeldrand */
 #sudoku td:nth-child(9) {
     border-right: 2px solid var(--bold-border-color);
 }
@@ -430,6 +421,13 @@ td.fixed.conflict-block,
 .note {
     color: black;
     font-weight: normal;
+}
+
+/* =======================
+  background highlighting
+======================= */
+.peer-highlight {
+    background-color: var(--highlight-color) !important;
 }
 
 /* ======================================================================================
@@ -532,6 +530,3 @@ td.fixed.conflict-block,
 .popupButton:hover {
     background-color: var(--button-hover-bg);
 }
-
-/* test: */
-
