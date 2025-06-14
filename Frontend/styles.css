@@ -13,7 +13,7 @@
     --error-color: red;
     --toggle-off: #ccc;
     --toggle-on: #4caf50;
-    --note-color: lightblue;
+    --note-color: rgb(54, 125, 240);
 
     --cell-size: 2rem;
     --input-size: 1.8rem;
@@ -414,6 +414,7 @@ td.fixed.conflict-block,
 ======================= */
 .highlight-same {
     background-color: var(--note-color) !important;
+    font-weight: bold;
 }
 
 .note.note-highlight {

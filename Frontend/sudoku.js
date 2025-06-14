@@ -275,16 +275,14 @@ function handleInput(value) {
     const numValue = parseInt(value);
     state.save();
 
-    // 👉 Im Create-Modus: direkte Eingabe ohne Prüfung
     if (isCreateMode()) {
         cell.value = numValue;
         cell.notes = [];
-        checkConflicts(); 
+        checkConflicts();
         renderBoard();
         return;
     }
 
-    // 👉 Normale Spiellogik
     if (state.isNoteMode) {
         if (cell.notes.includes(numValue)) {
             cell.notes = cell.notes.filter(n => n !== numValue);
@@ -293,21 +291,30 @@ function handleInput(value) {
             cell.notes.sort();
         }
     } else {
-        cell.value = numValue;
-        cell.notes = [];
-        clearNotesForPeers(row, col, numValue);
+        if (cell.value === numValue) {
+            cell.value = null;
+            cell.notes = [];
+            cell.invalid = false;
+            checkConflicts();
+            renderBoard();
+            return;
+        } else {
+            cell.value = numValue;
+            cell.notes = [];
+            clearNotesForPeers(row, col, numValue);
+        }
+
         const settings = window.getSettings();
 
-        const wasInvalid = cell.invalid;
-        let isInvalid = false;
-
         if (settings.checkMistakes) {
-            isInvalid = !isValidInput(row, col, numValue);
-            cell.invalid = isInvalid;
-
-            if (isInvalid && !wasInvalid) {
-                errorCount++;
-                updateErrorDisplay();
+            if (!isValidInput(row, col, numValue)) {
+                if (!cell.invalid) {
+                    errorCount++;  
+                    updateErrorDisplay();
+                }
+                cell.invalid = true;
+            } else {
+                cell.invalid = false;
             }
         } else {
             cell.invalid = false;
@@ -343,21 +350,17 @@ function validateBoard() {
     const settings = window.getSettings();
     const checkMistakes = settings?.checkMistakes ?? true;
 
-    let countErrors = 0;
-
     state.board.forEach((row, r) => {
         row.forEach((cell, c) => {
             if (!cell.fixed && cell.value) {
                 const isInvalid = checkMistakes ? !isValidInput(r, c, cell.value) : false;
                 cell.invalid = isInvalid;
-                if (isInvalid) countErrors++;
             } else {
                 cell.invalid = false;
             }
         });
     });
 
-    errorCount = countErrors;
     updateErrorDisplay();
     checkConflicts();
     renderBoard();
@@ -472,7 +475,7 @@ function updateTimer() {
 
 const pad = num => num.toString().padStart(2, '0');
 
-// === NEU: Highlight-Funktion ===
+// === Highlight-Funktion ===
 function highlightSameNumbers() {
     const settings = window.getSettings();
     const highlightActive = settings?.highlightNumbers ?? true;
