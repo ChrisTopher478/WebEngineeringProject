@@ -91,6 +91,8 @@ function renderBoard() {
     highlightSameNumbers();  // Hervorhebung nach jedem Render
 }
 
+window.renderBoard = renderBoard;
+
 function renderCell(cell, r, c) {
     const classes = [
         cell.fixed ? "fixed" : "",
@@ -300,7 +302,7 @@ const pad = num => num.toString().padStart(2, '0');
 // === NEU: Highlight-Funktion ===
 function highlightSameNumbers() {
     const settings = window.getSettings();
-    const highlightActive = settings?.highlightSame ?? true;
+    const highlightActive = settings?.highlightNumbers ?? true;
     if (!highlightActive) return;
 
     document.querySelectorAll("#sudoku td").forEach(cell => {
