@@ -1,58 +1,59 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // Elemente zentral definieren
+
+    // DOM Elemente sauber sammeln 
     const elements = {
-        openSettingsButton: document.getElementById("openSettings"),
-        sidebar: document.getElementById("sidebar"),
-        overlay: document.getElementById("overlay"),
-        rulesButton: document.querySelector(".menuButton:first-child"),
+        settingsButton: document.getElementById("openSettings"),
+        settingsSidebar: document.getElementById("sidebar"),
+        rulesButton: document.getElementById("openRules"),
         rulesSidebar: document.getElementById("rulesSidebar"),
-        closeRulesButton: document.getElementById("closeRules"),
+        overlay: document.getElementById("overlay"),
         playButton: document.querySelectorAll(".menuButton")[1],
         playPopup: document.getElementById("playPopup"),
-        closePlayPopupButton: document.getElementById("closePlayPopup"),
         popupButtons: document.querySelectorAll(".popupButton"),
     };
 
-    // Hilfsfunktionen
-    const toggleClass = (el, cls, add) => el.classList.toggle(cls, add);
-    const toggleVisibility = (el, show, display = "block") => el.style.display = show ? display : "none";
+    // Utility Funktionen 
+    const showElement = (el, show = true, display = "block") => {
+        if (el) el.style.display = show ? display : "none";
+    };
 
-    // Sidebar-Handling
+    const toggleClass = (el, className, add) => {
+        if (el) el.classList.toggle(className, add);
+    };
+
+    // Öffnen und Schließen Logiken 
     const openSidebar = () => {
-        toggleClass(elements.sidebar, "open", true);
+        toggleClass(elements.settingsSidebar, "open", true);
         toggleClass(elements.overlay, "active", true);
     };
 
     const closeSidebar = () => {
-        toggleClass(elements.sidebar, "open", false);
+        toggleClass(elements.settingsSidebar, "open", false);
         toggleClass(elements.overlay, "active", false);
     };
 
-    // Rules Sidebar-Handling
-    const openRulesSidebar = () => {
+    const openRules = () => {
         toggleClass(elements.rulesSidebar, "open", true);
         toggleClass(elements.overlay, "active", true);
     };
 
-    const closeRulesSidebar = () => {
+    const closeRules = () => {
         toggleClass(elements.rulesSidebar, "open", false);
         toggleClass(elements.overlay, "active", false);
     };
 
-    // Play Popup-Handling
-    const openPlayPopup = () => toggleVisibility(elements.playPopup, true, "flex");
-    const closePlayPopup = () => toggleVisibility(elements.playPopup, false);
+    const openPlayPopup = () => showElement(elements.playPopup, true, "flex");
+    const closePlayPopup = () => showElement(elements.playPopup, false);
 
-    // Eventbindungen
-    elements.openSettingsButton?.addEventListener("click", openSidebar);
-    elements.rulesButton?.addEventListener("click", openRulesSidebar);
-    elements.closeRulesButton?.addEventListener("click", closeRulesSidebar);
+    // Event Listener sauber binden 
+    elements.settingsButton?.addEventListener("click", openSidebar);
+    elements.rulesButton?.addEventListener("click", openRules);
+    document.getElementById("closeRules")?.addEventListener("click", closeRules);
     elements.playButton?.addEventListener("click", openPlayPopup);
-    elements.closePlayPopupButton?.addEventListener("click", closePlayPopup);
 
     elements.overlay?.addEventListener("click", () => {
         closeSidebar();
-        closeRulesSidebar();
+        closeRules();
         closePlayPopup();
     });
 
@@ -60,23 +61,30 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!e.target.closest(".popupContent")) closePlayPopup();
     });
 
-    // Setup für Schwierigkeits-Buttons
-    const setupSudokuButton = (button, difficulty) => {
-        button.addEventListener("click", async () => {
-            try {
-                const res = await fetch(`games/${difficulty}.json`);
-                const data = await res.json();
-                const randomSudoku = data[Math.floor(Math.random() * data.length)];
-                localStorage.setItem("sudokuData", JSON.stringify(randomSudoku));
-                window.location.href = "index.html";
-            } catch (err) {
-                console.error(`Fehler beim Laden der ${difficulty} Sudokus:`, err);
-            }
-        });
+    //  Sudoku Lade-Logik 
+    const loadSudoku = async (difficulty) => {
+        try {
+            const response = await fetch(`games/${difficulty}.json`);
+            const data = await response.json();
+            const randomGame = data[Math.floor(Math.random() * data.length)];
+            localStorage.setItem("sudokuData", JSON.stringify(randomGame));
+            window.location.href = "index.html";
+        } catch (err) {
+            console.error(`Fehler beim Laden von ${difficulty}:`, err);
+        }
     };
 
-    const difficulties = ["easy", "medium", "hard"];
-    elements.popupButtons.forEach((button, i) => {
-        setupSudokuButton(button, difficulties[i]);
+    // Popup Buttons verarbeiten 
+    const difficulties = ["easy", "medium", "hard", "continue"];
+    elements.popupButtons.forEach((button, index) => {
+        const difficulty = difficulties[index];
+        button.addEventListener("click", () => {
+            if (difficulty === "continue") {
+                window.location.href = "index.html";
+            } else {
+                loadSudoku(difficulty);
+            }
+        });
     });
+
 });
