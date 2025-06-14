@@ -11,6 +11,10 @@ class SudokuState {
         this.isNoteMode = false;
         this.undoStack = [];
         this.redoStack = [];
+        let timerInterval, startTime;
+        let pausedTime = 0;
+        let isPaused = false;
+        let errorCount = 0;
     }
 
     save() {
@@ -178,17 +182,28 @@ function handleInput(value) {
     state.save();
 
     if (state.isNoteMode) {
-        cell.notes.includes(numValue) ?
-            cell.notes = cell.notes.filter(n => n !== numValue) :
+        if (cell.notes.includes(numValue)) {
+            cell.notes = cell.notes.filter(n => n !== numValue);
+        } else {
             cell.notes.push(numValue);
-        cell.notes.sort();
+            cell.notes.sort();
+        }
     } else {
         cell.value = numValue;
         cell.notes = [];
         clearNotesForPeers(row, col, numValue);
         const settings = window.getSettings();
-        cell.invalid = settings.checkMistakes ? !isValidInput(row, col, numValue) : false;
+
+        const wasInvalid = cell.invalid;
+        const isInvalid = settings.checkMistakes ? !isValidInput(row, col, numValue) : false;
+        cell.invalid = isInvalid;
+
+        if (isInvalid && !wasInvalid) {
+            errorCount++;
+            updateErrorDisplay();
+        }
     }
+
     checkConflicts();
     renderBoard();
 }
@@ -232,7 +247,26 @@ function setupEventHandlers() {
     document.getElementById("redoButton").addEventListener("click", () => state.redo());
     document.getElementById("deleteButton").addEventListener("click", deleteActiveCell);
     document.getElementById("resetButton").addEventListener("click", resetGame);
-    
+
+    // Pause-Popup Events
+    document.getElementById("pauseButton").addEventListener("click", openPausePopup);
+    document.getElementById("resumeButton").addEventListener("click", closePausePopup);
+    document.getElementById("exitButton").addEventListener("click", () => {
+    closePausePopup();
+    downloadCurrentGame();
+    setTimeout(() => {
+        window.location.href = "startPage.html";
+    }, 500);
+});
+
+
+    // NEU: Schließen durch Klicken auf den Hintergrund
+    document.getElementById("pausePopup").addEventListener("click", (e) => {
+        if (e.target === document.getElementById("pausePopup")) {
+            closePausePopup();
+        }
+    });
+
     document.querySelector(".numPad").addEventListener("click", e => {
         if (!e.target.classList.contains("numButton")) return;
         const value = e.target.dataset.value;
@@ -272,6 +306,8 @@ function resetGame() {
     }));
     checkConflicts();
     renderBoard();
+    errorCount = 0;
+    updateErrorDisplay();
     restartTimer();
 }
 
@@ -289,6 +325,8 @@ function restartTimer() {
     document.getElementById("timer").textContent = "00:00";
     startTime = Date.now();
     timerInterval = setInterval(updateTimer, 1000);
+    errorCount = 0;
+    updateErrorDisplay();
 }
 
 function updateTimer() {
@@ -351,4 +389,57 @@ function highlightPeers() {
         const td = document.querySelector(`#sudoku td[data-row="${r}"][data-col="${c}"]`);
         if (td) td.classList.add("peer-highlight");
     });
+}
+
+function openPausePopup() {
+    clearInterval(timerInterval);
+    pausedTime = Date.now();
+
+    // Timer aktualisieren
+    const elapsed = pausedTime - startTime;
+    const minutes = Math.floor(elapsed / 60000);
+    const seconds = Math.floor((elapsed % 60000) / 1000);
+    document.getElementById("pauseTimerDisplay").textContent = `${pad(minutes)}:${pad(seconds)}`;
+
+    // Fehlerstand aktualisieren
+    const cappedErrors = Math.min(errorCount, 3);
+    document.getElementById("pauseErrorDisplay").textContent = `Fehler: ${cappedErrors}/3`;
+
+    document.getElementById("pausePopup").style.display = "flex";
+}
+
+function closePausePopup() {
+    const pauseDuration = Date.now() - pausedTime;
+    startTime += pauseDuration;
+    timerInterval = setInterval(updateTimer, 1000);
+    document.getElementById("pausePopup").style.display = "none";
+}
+
+function downloadCurrentGame() {
+    const gameData = {
+        board: state.board,
+        solution: state.solution
+    };
+
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(gameData));
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("download", "sudoku_backup.json");
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+}
+
+function updateErrorDisplay() {
+    const cappedErrors = Math.min(errorCount, 3);
+    document.getElementById("errorCounter").textContent = `Fehler: ${cappedErrors}/3`;
+
+    if (cappedErrors >= 3) {
+        setTimeout(handleGameOver, 1000);  // 1 Sekunde warten
+    }
+}
+
+function handleGameOver() {
+    alert("Zu viele Fehler! Das Spiel ist beendet.");
+    window.location.href = "startPage.html";
 }
