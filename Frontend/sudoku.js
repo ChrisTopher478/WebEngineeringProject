@@ -51,8 +51,21 @@ const state = new SudokuState();
 // === Initialisierung ===
 document.addEventListener("DOMContentLoaded", () => initGame());
 
+function isCreateMode() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("mode") === "create";
+}
+
 async function initGame() {
     loadSettings();
+
+    if (isCreateMode()) {
+        createEmptyBoard();
+        setupEventHandlers();
+        renderBoard();
+        return;
+    }
+
     const storedData = localStorage.getItem("sudokuData");
     if (!storedData) {
         alert("No Sudoku has been found, please start again on homepage.");
@@ -122,6 +135,38 @@ async function loadSudoku() {
     }
 }
 
+function createEmptyBoard() {
+    state.board = Array.from({ length: 9 }, () => 
+        Array.from({ length: 9 }, () => ({
+            value: null,
+            notes: [],
+            fixed: false,
+            invalid: false,
+            conflict: { row: false, col: false, block: false }
+        }))
+    );
+
+    state.solution = []; 
+}
+
+function saveCreatedSudoku() {
+    const sudoku = state.board.map(row => row.map(cell => cell.value || null));
+    const gameData = {
+        sudoku: sudoku,
+        solution: null
+    };
+
+    const json = JSON.stringify(gameData, null, 2);
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "my_sudoku.json";
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
 // === Rendering ===
 function renderBoard() {
     const table = document.getElementById("sudoku");
@@ -130,6 +175,14 @@ function renderBoard() {
     ).join("");
     highlightSameNumbers();  
     highlightPeers(); 
+    restoreActiveCellFocus();
+}
+
+function restoreActiveCellFocus() {
+    if (!state.activeCell) return;
+    const { row, col } = state.activeCell;
+    const td = document.querySelector(`#sudoku td[data-row="${row}"][data-col="${col}"]`);
+    if (td) td.focus();
 }
 
 window.renderBoard = renderBoard;
@@ -140,14 +193,15 @@ function renderCell(cell, r, c) {
         cell.invalid ? "invalid" : "",
         cell.conflict.row ? "conflict-row" : "",
         cell.conflict.col ? "conflict-col" : "",
-        cell.conflict.block ? "conflict-block" : ""
+        cell.conflict.block ? "conflict-block" : "",
+        (state.activeCell?.row === r && state.activeCell?.col === c) ? "active-cell" : ""
     ].filter(Boolean).join(" ");
     
     const content = cell.value ? 
         `<div class="cellValue">${cell.value}</div>` :
         renderNotes(cell.notes);
     
-    return `<td class="${classes}" data-row="${r}" data-col="${c}">
+    return `<td class="${classes}" data-row="${r}" data-col="${c}" tabindex="0">
                 <div class="cellContainer">${content}</div>
             </td>`;
 }
@@ -210,6 +264,7 @@ function checkConflicts() {
 // === Eingabehandling ===
 function handleInput(value) {
     if (!state.activeCell) return;
+
     const { row, col } = state.activeCell;
     const cell = state.board[row][col];
     if (cell.fixed) return;
@@ -217,6 +272,15 @@ function handleInput(value) {
     const numValue = parseInt(value);
     state.save();
 
+    // 👉 Im Create-Modus: direkte Eingabe ohne Prüfung
+    if (isCreateMode()) {
+        cell.value = numValue;
+        cell.notes = [];
+        renderBoard();
+        return;
+    }
+
+    // 👉 Normale Spiellogik
     if (state.isNoteMode) {
         if (cell.notes.includes(numValue)) {
             cell.notes = cell.notes.filter(n => n !== numValue);
@@ -343,6 +407,14 @@ function setupEventHandlers() {
 
     document.getElementById("openSettings").addEventListener("click", () => toggleSidebar(true));
     document.getElementById("overlay").addEventListener("click", () => toggleSidebar(false));
+
+    if (isCreateMode()) {
+        const saveButton = document.createElement("button");
+        saveButton.textContent = "Save";
+        saveButton.classList.add("leftSideButton");
+        saveButton.addEventListener("click", saveCreatedSudoku);
+        document.querySelector(".leftSideButtons").appendChild(saveButton);
+    }
 }
 
 function deleteActiveCell() {
