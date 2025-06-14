@@ -188,13 +188,16 @@ function restoreActiveCellFocus() {
 window.renderBoard = renderBoard;
 
 function renderCell(cell, r, c) {
+    const hasConflict = cell.conflict.row || cell.conflict.col || cell.conflict.block;
+
     const classes = [
         cell.fixed ? "fixed" : "",
         cell.invalid ? "invalid" : "",
         cell.conflict.row ? "conflict-row" : "",
         cell.conflict.col ? "conflict-col" : "",
         cell.conflict.block ? "conflict-block" : "",
-        (state.activeCell?.row === r && state.activeCell?.col === c) ? "active-cell" : ""
+        (state.activeCell?.row === r && state.activeCell?.col === c) ? "active-cell" : "",
+        hasConflict ? "cell-conflict-border" : ""
     ].filter(Boolean).join(" ");
     
     const content = cell.value ? 
@@ -276,6 +279,7 @@ function handleInput(value) {
     if (isCreateMode()) {
         cell.value = numValue;
         cell.notes = [];
+        checkConflicts(); 
         renderBoard();
         return;
     }

@@ -431,7 +431,7 @@ td.fixed.conflict-block,
   background highlighting
 ======================= */
 .peer-highlight {
-    background-color: var(--highlight-color) !important;
+    background-color: var(--highlight-color);
 }
 
 /* =======================
@@ -507,11 +507,9 @@ td.fixed.conflict-block,
     font-weight: bold;
 }
 
-/* ======================================================================================
-
-                                    create mode
-   
-====================================================================================== */
+/* =======================
+   mark active cell
+======================= */
 .active-cell {
     outline: 2px solid blue;
 }
