@@ -72,6 +72,7 @@ function setupSettingsListeners() {
             saveSettings();
             window.validateBoard?.();
             window.renderBoard?.();
+            window.updateErrorDisplay?.();  // <--- hier neu hinzugefügt
         });
     });
 }

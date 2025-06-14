@@ -195,12 +195,18 @@ function handleInput(value) {
         const settings = window.getSettings();
 
         const wasInvalid = cell.invalid;
-        const isInvalid = settings.checkMistakes ? !isValidInput(row, col, numValue) : false;
-        cell.invalid = isInvalid;
+        let isInvalid = false;
 
-        if (isInvalid && !wasInvalid) {
-            errorCount++;
-            updateErrorDisplay();
+        if (settings.checkMistakes) {
+            isInvalid = !isValidInput(row, col, numValue);
+            cell.invalid = isInvalid;
+
+            if (isInvalid && !wasInvalid) {
+                errorCount++;
+                updateErrorDisplay();
+            }
+        } else {
+            cell.invalid = false;
         }
     }
 
@@ -231,14 +237,28 @@ function isValidInput(row, col, value) {
 
 function validateBoard() {
     const settings = window.getSettings();
+    const checkMistakes = settings?.checkMistakes ?? true;
+
+    let countErrors = 0;
+
     state.board.forEach((row, r) => {
         row.forEach((cell, c) => {
-            cell.invalid = (!cell.fixed && cell.value && settings.checkMistakes) ? !isValidInput(r, c, cell.value) : false;
+            if (!cell.fixed && cell.value) {
+                const isInvalid = checkMistakes ? !isValidInput(r, c, cell.value) : false;
+                cell.invalid = isInvalid;
+                if (isInvalid) countErrors++;
+            } else {
+                cell.invalid = false;
+            }
         });
     });
+
+    errorCount = countErrors;
+    updateErrorDisplay();
     checkConflicts();
     renderBoard();
 }
+
 window.validateBoard = validateBoard;
 
 // === Events ===
@@ -431,11 +451,29 @@ function downloadCurrentGame() {
 }
 
 function updateErrorDisplay() {
+    const settings = window.getSettings();
+    const checkMistakes = settings?.checkMistakes ?? true;
+
+    const errorCounterElement = document.getElementById("errorCounter");
+    const pauseErrorDisplayElement = document.getElementById("pauseErrorDisplay");
+
+    if (!checkMistakes) {
+        // Fehleranzeige komplett ausblenden
+        errorCounterElement.style.display = "none";
+        pauseErrorDisplayElement.style.display = "none";
+        return;
+    }
+
+    // Fehleranzeige sichtbar machen
+    errorCounterElement.style.display = "inline";
+    pauseErrorDisplayElement.style.display = "inline";
+
     const cappedErrors = Math.min(errorCount, 3);
-    document.getElementById("errorCounter").textContent = `Fehler: ${cappedErrors}/3`;
+    errorCounterElement.textContent = `Fehler: ${cappedErrors}/3`;
+    pauseErrorDisplayElement.textContent = `Fehler: ${cappedErrors}/3`;
 
     if (cappedErrors >= 3) {
-        setTimeout(handleGameOver, 1000);  // 1 Sekunde warten
+        setTimeout(handleGameOver, 1000);
     }
 }
 
