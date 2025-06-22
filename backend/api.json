@@ -195,7 +195,7 @@
           },
           "getForUser": {
             "method": "GET",
-            "path": "/unfinished/<userId>",
+            "path": "/continue/<userId>",
             "pathParam": "userId",
             "responses": [
               {
@@ -243,8 +243,9 @@
           },
           "deleteForUser": {},
           "storeSubmission": {},
+
           "deleteSubmission": {},
-          "getSubmission": {},
+          "getSubmissions": {},
           "convertForImport": {},
           "convertForExport": {}
         }

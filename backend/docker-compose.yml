@@ -1,26 +1,4 @@
 services:
-#  keycloak:
-#    image: quay.io/keycloak/keycloak:26.2.1
-#    container_name: keycloak
-#    environment:
-#      KC_HTTP_PORT: 8081
-#      KC_BOOTSTRAP_ADMIN_USERNAME: admin
-#      KC_BOOTSTRAP_ADMIN_PASSWORD: keycloak
-#      KC_DB: postgres
-#      KC_DB_URL_HOST: localhost
-#      KC_DB_URL_PORT: 5432
-#      KC_DB_USERNAME: postgres
-#      KC_DB_PASSWORD: postgres
-#      DEBUG: true
-#      DEBUG_PORT: "*:8181"
-#    command: "start-dev "
-#    ports:
-#      - "8081:8081"
-#      - "8181:8181"
-#    network_mode: host
-#    depends_on:
-#      - postgres
-
   postgres:
     image: postgres:17
     container_name: postgres
@@ -31,10 +9,29 @@ services:
       POSTGRES_PASSWORD: postgres
     network_mode: host
 
-  backend:
-    image: sudoku/backend:latest
-    container_name: backend
-    ports:
-      - "8080:8080"
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.2.1
+    container_name: keycloak
+    environment:
+      KC_HTTP_PORT: 8180
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: keycloak
+      KC_DB: postgres
+      KC_DB_URL_HOST: localhost
+      KC_DB_URL_PORT: 5432
+      KC_DB_USERNAME: postgres
+      KC_DB_PASSWORD: postgres
+      DEBUG: true
+    command: "start-dev "
     network_mode: host
+    depends_on:
+      - postgres
+
+#  backend:
+#    image: sudoku/backend:latest
+#    container_name: backend
+#    network_mode: host
+#    depends_on:
+#      - postgres
+#      - keycloak
 
