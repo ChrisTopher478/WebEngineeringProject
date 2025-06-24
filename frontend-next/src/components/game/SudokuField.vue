@@ -16,6 +16,7 @@
 </template>
 
 <script setup>
+import './styles.css';
 const field = [
   [0, 0, 3, 0, 2, 0, 6, 0, 0],
   [9, 0, 0, 3, 0, 5, 0, 0, 1],
@@ -28,46 +29,3 @@ const field = [
   [0, 0, 5, 0, 1, 0, 3, 0, 0]
 ];
 </script>
-
-<style scoped>
-.boardWrapper {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 1;
-}
-
-table {
-  border-collapse: collapse;
-}
-
-td {
-  border: 1px solid #999;
-  width: 2rem;
-  height: 2rem;
-  text-align: center;
-  padding: 0;
-  box-sizing: border-box;
-  overflow: hidden;
-}
-
-input {
-  width: 1.8rem;
-  height: 1.8rem;
-  font-size: 0.9rem;
-  text-align: center;
-  border: none;
-  padding: 0;
-  caret-color: transparent;
-}
-
-.fixed {
-  /* background-color: var(--highlight-color); */
-  font-weight: bold;
-}
-
-.bold-border {
-  border: 2px solid var(--bold-border-color);
-}
-</style>
