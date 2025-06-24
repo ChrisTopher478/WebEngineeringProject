@@ -1,0 +1,8 @@
+- [ ] add & style Popups
+- [ ] copy/paste/edit functionality
+- [ ] rewrite html to use vuetify responsiveness tools
+- [ ] install and setup store
+- [ ] copy/add start page
+- [ ] add user login
+- [ ] integrate with backend
+- [ ] add new features from old frontend
