@@ -1,0 +1,15 @@
+{
+  "realm": "sudoku",
+  "auth-server-url": "http://localhost:8180",
+  "resource": "backend",
+  "credentials": {
+    "secret": "P2ovGnMMeqAToJUvacoVPJxrRdi6f5a1"
+  },
+  "paths": [
+    {
+      "path": "/sudoku/generate/*",
+      "name": "generate",
+      "enforcement-mode": "DISABLED"
+    }
+  ]
+}
