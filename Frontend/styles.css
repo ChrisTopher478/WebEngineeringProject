@@ -18,6 +18,9 @@
     --panel-border-color: #b3a24c;
     --striped-bg-color-one: #cfc878;
     --striped-bg-color-two: #d7d082;
+    --dark-striped-bg-color-one: #b5af71;
+    --dark-striped-bg-color-two: #c3bc74;
+    --board-bg-color: #eaeaea;
 
     --striped-bg: repeating-linear-gradient(
         45deg,
@@ -29,8 +32,6 @@
 
     --cell-size: 2rem;
     --input-size: 1.8rem;
-    --num-button-width: 2.5rem;
-    --num-button-height: 1.6rem;
     --header-height: 5.5rem;
     --sidebar-z-index: 1000;
 }
@@ -120,24 +121,27 @@ h2 {
    Spielfeld & Container
 ======================= */
 .gameContainer {
-    position: relative;
-    height: calc(100vh - var(--header-height));
-    width: 100%;
-    display: flex;
+    padding-top: 100px;
     justify-content: center;
     align-items: center;
+    display: flex;
+    flex-direction: column;
+}
+
+.horizontalGameContainer {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 10px;
 }
 
 .boardWrapper {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
     z-index: 1;
 }
 
 table {
     border-collapse: collapse;
+    background-color: var(--board-bg-color);
 }
 
 td {
@@ -173,23 +177,22 @@ input {
    Nummern-Pad
 ======================= */
 .numPad {
-    position: absolute;
-    left: 50%;
-    transform: translateX(calc(9 * var(--cell-size) / 2 + 1rem));
     display: flex;
     flex-direction: column;
-    gap: 0.15rem;
-    height: calc(var(--cell-size) * 9);
+    border: solid 1px var(--border-color);
+    border-radius: 10px;
+    overflow: hidden;
 }
 
 .numButton {
-    width: var(--num-button-width);
-    height: var(--num-button-height);
+    width: 80px;
+    height: 30px;
     font-size: 0.9rem;
     cursor: pointer;
     padding: 0;
     background-color: var(--button-bg);
-    border: 1px solid var(--border-color);
+    border: none;
+    border-top: 1px solid var(--border-color);
     transition: background-color 0.3s;
 }
 
@@ -199,6 +202,10 @@ input {
 
 .numButton.active {
     background-color: lightblue;
+}
+
+.firstNumButton {
+    border-top: none;
 }
 
 /* =======================
@@ -306,31 +313,29 @@ input {
    Buttons Links vom Spielfeld
 ============================== */
 .leftSideButtons {
-    position: absolute;
-    left: 50%;
-    top: calc(50% - (var(--cell-size) * 9 / 2));
-    transform: translateX(calc(-9 * var(--cell-size) / 2 - 5rem - 1rem));
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    border: solid 2px var(--border-color);
+    border-radius: 10px;
+    overflow: hidden;
 }
 
 .leftSideButton, .leftSideButtonSmall {
     font-size: 0.9rem;
     cursor: pointer;
-    background-color: #ffffff00;
-    border: 2px solid var(--border-color);
+    background-color: var(--button-bg);
+    border: none;
     transition: background-color 0.3s;
 }
 
 .leftSideButton {
-    width: 5rem;
-    height: 2rem;
+    width: 80px;
+    height: 30px;
+    border-top: solid 2px;
 }
 
-.leftSideButtonSmall {
-    width: calc((5rem - 0.2rem) / 2);
-    height: 2rem;
+#undoButton {
+    border-right: solid 2px;
 }
 
 .leftSideButton:hover, .leftSideButtonSmall:hover {
@@ -339,8 +344,8 @@ input {
 
 .splitButtons {
     display: flex;
-    width: 5rem;
-    gap: 0.2rem;
+    width: 80px;
+    flex-direction: row;
 }
 
 /* =======================
@@ -426,17 +431,13 @@ td.fixed.conflict-block,
    Timer
 ======================= */
 #timerContainer {
-    position: absolute;
-    top: calc(50% - (var(--cell-size) * 9 / 2) - 2rem);
-    left: 50%;
-    transform: translateX(calc(-9 * var(--cell-size) / 2));
     font-size: 1.5rem;
     font-weight: bold;
     z-index: 2;
-
     display: flex;
-    justify-content: center;
-    gap: 2rem; /* Abstand zwischen Zeit und Fehleranzeige */
+    justify-content: space-between;
+    flex-direction: row;
+    width: 50%;
 }
 
 /* =======================

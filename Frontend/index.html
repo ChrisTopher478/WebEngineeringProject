@@ -23,46 +23,54 @@
     <!-- HAUPTINHALT -->
     <main class="gameContainer">
 
-        <!-- Linke Seitenleiste -->
-        <nav class="leftSideButtons" aria-label="Seitliche Buttons">
-            <div class="splitButtons">
-                <button id="undoButton" class="leftSideButtonSmall" type="button">
-                    <img src="img/undo.png" alt="Undo" style="width: 100%">
-                </button>
-                <button id="redoButton" class="leftSideButtonSmall" type="button">
-                    <img src="img/redo.png" alt="Redo" style="width: 100%">
-                </button>
-            </div>
-            <button id="deleteButton" class="leftSideButton" type="button">Delete</button>
-            <button id="resetButton" class="leftSideButton" type="button">Reset</button>
-            <button id="pauseButton" class="leftSideButton" type="button">Pause</button>
-        </nav>
-
         <!-- Sudoku-Spielfeld -->
         <div id="timerContainer">
             <span id="timer">00:00</span>
             <span id="errorCounter" class="error-counter">Mistakes: 0/3</span>
         </div>
 
-        <section class="boardWrapper">
-            <table id="sudoku" aria-label="Sudoku Spielfeld"></table>
-        </section>
+        <div class="horizontalGameContainer">
 
-        <!-- Nummernfeld -->
-        <aside class="numPad" aria-label="Nummernfeld">
-            <button class="numButton" data-value="N" type="button">
-                <img src="img/write.png" alt="Note" style="height: 90%">
-            </button>
-            <button class="numButton" data-value="1" type="button">1</button>
-            <button class="numButton" data-value="2" type="button">2</button>
-            <button class="numButton" data-value="3" type="button">3</button>
-            <button class="numButton" data-value="4" type="button">4</button>
-            <button class="numButton" data-value="5" type="button">5</button>
-            <button class="numButton" data-value="6" type="button">6</button>
-            <button class="numButton" data-value="7" type="button">7</button>
-            <button class="numButton" data-value="8" type="button">8</button>
-            <button class="numButton" data-value="9" type="button">9</button>
-        </aside>
+            <!-- Linke Seitenleiste -->
+            <div>
+                <div class="leftSideButtons" aria-label="Seitliche Buttons">
+                    <div class="splitButtons">
+                        <button id="undoButton" class="leftSideButtonSmall" type="button">
+                            <img src="img/undo.png" alt="Undo" style="width: 100%">
+                        </button>
+                        <button id="redoButton" class="leftSideButtonSmall" type="button">
+                            <img src="img/redo.png" alt="Redo" style="width: 100%">
+                        </button>
+                    </div>
+                    <button id="deleteButton" class="leftSideButton" type="button">Delete</button>
+                    <button id="resetButton" class="leftSideButton" type="button">Reset</button>
+                    <button id="pauseButton" class="leftSideButton" type="button">Pause</button>
+                </div>
+            </div>
+
+            <section class="boardWrapper">
+                <table id="sudoku" aria-label="Sudoku Spielfeld"></table>
+            </section>
+
+            <!-- Nummernfeld -->
+            <aside>
+                <div class="numPad" aria-label="Nummernfeld">
+                    <button class="firstNumButton numButton" data-value="N" type="button">
+                        <img src="img/write.png" alt="Note" style="height: 90%">
+                    </button>
+                    <button class="numButton" data-value="1" type="button">1</button>
+                    <button class="numButton" data-value="2" type="button">2</button>
+                    <button class="numButton" data-value="3" type="button">3</button>
+                    <button class="numButton" data-value="4" type="button">4</button>
+                    <button class="numButton" data-value="5" type="button">5</button>
+                    <button class="numButton" data-value="6" type="button">6</button>
+                    <button class="numButton" data-value="7" type="button">7</button>
+                    <button class="numButton" data-value="8" type="button">8</button>
+                    <button class="numButton" data-value="9" type="button">9</button>
+                </div>
+            </aside>
+            
+        </div>
 
     </main>
 
