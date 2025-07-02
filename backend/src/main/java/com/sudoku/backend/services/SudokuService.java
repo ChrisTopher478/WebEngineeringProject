@@ -1,11 +1,13 @@
 package com.sudoku.backend.services;
 
-import static java.lang.Math.random;
+import com.sudoku.backend.jpa.entities.Sudoku;
+import com.sudoku.backend.models.Cell;
 
 public class SudokuService {
-
-    public static class Difficulty {
-
+    public enum Difficulty {
+        EASY,
+        MEDIUM,
+        HARD
     }
 
     /**
@@ -15,7 +17,7 @@ public class SudokuService {
      * @param cellY The y-coordinate of the cell.
      * @return True if the value of the cell does not appear again in the same line, row or subgrid or else false.
      */
-    private boolean is_cell_valid(int[][] grid, int cellX, int cellY) {
+    private boolean isCellValid(int[][] grid, int cellX, int cellY) {
         int value = grid[cellX][cellY];
 
         for (int i = 0; i < 9; i++) {
@@ -48,7 +50,7 @@ public class SudokuService {
     /**
      * Returns a random number in range of min and max (both included).
      */
-    private int rnd_range(int min, int max) {
+    private int rndRange(int min, int max) {
 //        return min + random() % (1 + max - min);
         return min + (int)(Math.random() * ((max - min) + 1));
     }
@@ -58,10 +60,10 @@ public class SudokuService {
      * @param grid The sudoku grid to validate.
      * @return True if the grid is valid, false otherwise.
      */
-    private boolean is_grid_valid(int[][] grid) {
+    private boolean isGridValid(int[][] grid) {
         for (int x = 0; x < 9; x++) {
             for (int y = 0; y < 9; y++) {
-                if (grid[x][y] == 0 || !is_cell_valid(grid, x, y)) {
+                if (grid[x][y] == 0 || !isCellValid(grid, x, y)) {
                     return false;
                 }
             }
@@ -76,23 +78,23 @@ public class SudokuService {
      * @param cellY The y-coordinate of the cell.
      * @return The number of found solutions.
      */
-    private int find_all_solutions(int[][] grid, int cellX, int cellY) {
+    private int findAllSolutions(int[][] grid, int cellX, int cellY) {
         int value = 1;
         int solutions = 0;
 
         // Initialize coordinates for the next cell and check for its existance.
-        Cell next = get_next_free_cell(grid, cellX, cellY);
+        Cell next = getNextFreeCell(grid, cellX, cellY);
 
         // Check for each possible value if the grid is still valid.
         // Then move on to the next cell and repeat.
         // Add the amount of solutions found by the recursive function call.
         while (value <= 9) {
             grid[cellX][cellY] = value;
-            if (is_cell_valid(grid, cellX, cellY)) {
+            if (isCellValid(grid, cellX, cellY)) {
                 if (next == null) {
                     solutions++;
                 } else {
-                    solutions += find_all_solutions(grid, next.getXCoordinate(), next.getYCoordinate());
+                    solutions += findAllSolutions(grid, next.getXCoordinate(), next.getYCoordinate());
                 }
             }
             value++;
@@ -115,14 +117,14 @@ public class SudokuService {
         boolean valid = false;
 
         // Initialize coordinates for the next cell and check for its existance.
-        Cell next = get_next_free_cell(grid, cellX, cellY);
+        Cell next = getNextFreeCell(grid, cellX, cellY);
 
         // Check for each possible value if the grid is still valid
         // then move on to the next cell and repeat.
-        int startValue = rnd_range(0, 8);
+        int startValue = rndRange(0, 8);
         for (int valueOff = 0; !valid && valueOff < 9; valueOff++) {
             grid[cellX][cellY] = 1 + (startValue + valueOff) % 9;
-            valid = is_cell_valid(grid, cellX, cellY) && (next == null || solve(grid, next.getXCoordinate(), next.getYCoordinate()));
+            valid = isCellValid(grid, cellX, cellY) && (next == null || solve(grid, next.getXCoordinate(), next.getYCoordinate()));
         }
 
         // Reset the cell value if all values have been invalid.
@@ -140,7 +142,7 @@ public class SudokuService {
      * @param cellY Gets set to the y-coordinate of the next cell if one is found.
      * @return A new Cell if a free cell is found or else null.
      */
-    private Cell get_next_free_cell(int[][] grid, int cellX, int cellY) {
+    private Cell getNextFreeCell(int[][] grid, int cellX, int cellY) {
         for (int yOff = 0; yOff < 9; yOff++) {
             for (int xOff = 0; xOff < 9; xOff++) {
                 int x = (cellX + xOff) % 9;
@@ -162,7 +164,7 @@ public class SudokuService {
      * @param cellY Gets set to the y-coordinate of the next cell if one is found.
      * @return True if a free cell is found of else false.
      */
-    private Cell get_next_filled_cell(int[][] grid, int cellX, int cellY) {
+    private Cell getNextFilledCell(int[][] grid, int cellX, int cellY) {
         for (int yOff = 0; yOff < 9; yOff++) {
             for (int xOff = 0; xOff < 9; xOff++) {
                 int x = (cellX + xOff) % 9;
@@ -182,61 +184,52 @@ public class SudokuService {
      * @param grid The sudoku grid which will contain the generated values at the end of the function.
      * @param difficulty The difficulty of the puzzle determines how many cells will be erased after generation.
      */
-    void generate_grid(int[][] grid, Difficulty difficulty) {
-        int startX = rnd_range(0, 8);
-        int startY = rnd_range(0, 8);
+    private void generateGrid(int[][] grid, Difficulty difficulty) {
+        int startX = rndRange(0, 8);
+        int startY = rndRange(0, 8);
 
         // Fill out the whole grid with one solution
         if (solve(grid, startX, startY)) {
-
             // Repeat this step depending on how high the difficulty is set
-            for (int i = 0; i < (int)(((1.0 + (float)difficulty) / 3.0) * 50); i++) {
+            for (int i = 0; i < (int)(((1.0 + difficulty.ordinal()) / 3.0) * 50); i++) {
 
-                int initialX = rnd_range(0, 8);
-                int initialY = rnd_range(0, 8);
-                get_next_filled_cell(grid, &initialX, &initialY);
-                int cellX = initialX;
-                int cellY = initialY;
-                bool valid = false;
+                int initialX = rndRange(0, 8);
+                int initialY = rndRange(0, 8);
+                Cell next  = getNextFilledCell(grid, initialX, initialY);
+                boolean valid;
 
-                // Try to erase the value of a filled cell in a way that there can be no multiple solutions
-                do {
-                    int value = grid[cellX][cellY];
-                    grid[cellX][cellY] = 0;
+                do{
+                    int value = grid[next.getXCoordinate()][next.getYCoordinate()]; // todo handle possible null pointer exception
+                    grid[next.getXCoordinate()][next.getYCoordinate()] = 0;
 
                     // Check if there is only one possible solution
-                    valid = find_all_solutions(grid, cellX, cellY) == 1;
-                    valid = true;
+                    valid = findAllSolutions(grid, next.getXCoordinate(), next.getYCoordinate()) == 1;
 
                     // If there are multiple solutions, revert the value of the cell back.
                     if (!valid) {
-                        grid[cellX][cellY] = value;
+                        grid[next.getXCoordinate()][next.getYCoordinate()] = value;
                     }
-
-                } while (!valid && get_next_filled_cell(grid, &cellX, &cellY) && !(cellX == initialX || cellY == initialY));
+                } while(!valid && !(next.getXCoordinate() == initialX || next.getYCoordinate() == initialY));
             }
         }
     }
 
+    private int[][] emptyGrid(int rows, int cols) {
+        return new int[rows][cols];
+    }
+
     /**
      * Initializes a new game by generating the grids according to the difficulty.
-     * @param game The game struct which should be initialized.
      */
-    void new_game(Game *game) {
-        for (int y = 0; y < 9; y++) {
-            for (int x = 0; x < 9; x++) {
-                game->initial_grid[x][y] = 0;
-                game->grid[x][y] = 0;
-            }
-        }
+    public Sudoku newSudoku(Difficulty difficulty) {
+        Sudoku newSudoku = new Sudoku();
+        int[][] grid = emptyGrid(9, 9);
+        solve(grid, rndRange(0,8), rndRange(0,8));
+        newSudoku.setSolution(grid);
+        generateGrid(grid, difficulty);
+        newSudoku.setSudoku(grid);
 
-        generate_grid(game->initial_grid, game->difficulty);
-
-        for (int y = 0; y < 9; y++) {
-            for (int x = 0; x < 9; x++) {
-                game->grid[x][y] = game->initial_grid[x][y];
-            }
-        }
+        return newSudoku;
     }
 
 }

@@ -35,4 +35,24 @@ public class Sudoku {
     public void setSubmitterId(String submitterId) {
         this.submitterId = submitterId;
     }
+
+    public void setSudoku(int[][] sudoku) {
+        ArrayList<Integer> flatSudoku = new ArrayList<>();
+        for (int i = 0; i < 9; i++) {
+            for (int j = 0; j < 9; j++) {
+                flatSudoku.add(sudoku[i][j]);
+            }
+        }
+        this.sudoku = flatSudoku;
+    }
+
+    public void setSolution(int[][] solution) {
+        ArrayList<Integer> flatSudoku = new ArrayList<>();
+        for (int i = 0; i < 9; i++) {
+            for (int j = 0; j < 9; j++) {
+                flatSudoku.add(solution[i][j]);
+            }
+        }
+        this.solution = flatSudoku;
+    }
 }

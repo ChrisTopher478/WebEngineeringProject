@@ -4,34 +4,44 @@ import com.sudoku.backend.jpa.entities.ContinueLater;
 import com.sudoku.backend.jpa.entities.Sudoku;
 import com.sudoku.backend.jpa.repository.ContinueLaterRepository;
 import com.sudoku.backend.jpa.repository.SudokuRepository;
-import org.springframework.http.HttpStatus;
+import com.sudoku.backend.services.SudokuService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.swing.text.html.Option;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.logging.Logger;
 
 @RestController
 @RequestMapping("sudoku")
 public class SudokuController {
     private final SudokuRepository sudokuRepository;
     private final ContinueLaterRepository continueLaterRepository;
+    private final SudokuService service;
 
-    public SudokuController(SudokuRepository sudokuRepository, ContinueLaterRepository continueLaterRepository) {
+    public SudokuController(SudokuRepository sudokuRepository, ContinueLaterRepository continueLaterRepository, SudokuService service) {
         this.sudokuRepository = sudokuRepository;
         this.continueLaterRepository = continueLaterRepository;
+        this.service = service;
     }
 
     @GetMapping("/generate/{difficulty}")
     public ResponseEntity<Sudoku> getSudokuById(@PathVariable String difficulty) {
-        // TODO: generate sudokus by difficulty
-        return ResponseEntity.of(Optional.of(new Sudoku()));
+        try {
+            SudokuService.Difficulty diff = SudokuService.Difficulty.valueOf(difficulty);
+            Sudoku newSudoku = service.newSudoku(diff);
+            return ResponseEntity.of(Optional.of(newSudoku));
+        }
+        catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @GetMapping("continue")

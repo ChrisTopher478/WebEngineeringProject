@@ -1,4 +1,4 @@
-package com.sudoku.backend.services;
+package com.sudoku.backend.models;
 
 public class Cell {
     private int xCoordinate;
