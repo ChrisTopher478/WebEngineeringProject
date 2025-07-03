@@ -5,6 +5,10 @@ import com.sudoku.backend.models.Cell;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 @Component
 public class SudokuService {
     public enum Difficulty {
@@ -81,31 +85,25 @@ public class SudokuService {
      * @param cellY The y-coordinate of the cell.
      * @return The number of found solutions.
      */
-    private int findAllSolutions(int[][] grid, int cellX, int cellY) {
+    private int findAllSolutions(int[][] grid, int cellX, int cellY, int limit) {
         int value = 1;
         int solutions = 0;
 
-        // Initialize coordinates for the next cell and check for its existance.
         Cell next = getNextFreeCell(grid, cellX, cellY);
 
-        // Check for each possible value if the grid is still valid.
-        // Then move on to the next cell and repeat.
-        // Add the amount of solutions found by the recursive function call.
-        while (value <= 9) {
+        while (value <= 9 && solutions < limit) {
             grid[cellX][cellY] = value;
             if (isCellValid(grid, cellX, cellY)) {
                 if (next == null) {
                     solutions++;
                 } else {
-                    solutions += findAllSolutions(grid, next.getXCoordinate(), next.getYCoordinate());
+                    solutions += findAllSolutions(grid, next.getXCoordinate(), next.getYCoordinate(), limit - solutions);
                 }
             }
             value++;
         }
 
-        // Reset the grid so it returns to its former state
         grid[cellX][cellY] = 0;
-
         return solutions;
     }
 
@@ -193,26 +191,34 @@ public class SudokuService {
 
         // Fill out the whole grid with one solution
         if (solve(grid, startX, startY)) {
-            // Repeat this step depending on how high the difficulty is set
-            for (int i = 0; i < (int)(((1.0 + difficulty.ordinal()) / 3.0) * 50); i++) {
+            List<Cell> cells = new ArrayList<>();
+            for (int x = 0; x < 9; x++) {
+                for (int y = 0; y < 9; y++) {
+                    cells.add(new Cell(x, y));
+                }
+            }
+            Collections.shuffle(cells);
 
-                int initialX = rndRange(0, 8);
-                int initialY = rndRange(0, 8);
-                Cell next  = getNextFilledCell(grid, initialX, initialY);
-                boolean valid;
+            int removed = 0;
+            int target = switch (difficulty) {
+                case EASY -> 35;
+                case MEDIUM -> 45;
+                case HARD -> 55;
+            };
 
-                do{
-                    int value = grid[next.getXCoordinate()][next.getYCoordinate()]; // todo handle possible null pointer exception
-                    grid[next.getXCoordinate()][next.getYCoordinate()] = 0;
+            for (Cell cell : cells) {
+                int x = cell.getXCoordinate();
+                int y = cell.getYCoordinate();
 
-                    // Check if there is only one possible solution
-                    valid = findAllSolutions(grid, next.getXCoordinate(), next.getYCoordinate()) == 1;
+                int backup = grid[x][y];
+                grid[x][y] = 0;
 
-                    // If there are multiple solutions, revert the value of the cell back.
-                    if (!valid) {
-                        grid[next.getXCoordinate()][next.getYCoordinate()] = value;
-                    }
-                } while(!valid && !(next.getXCoordinate() == initialX || next.getYCoordinate() == initialY));
+                if (findAllSolutions(grid, 0, 0, 2) != 1) {
+                    grid[x][y] = backup; // revert
+                } else {
+                    removed++;
+                    if (removed >= target) break;
+                }
             }
         }
     }
