@@ -2,7 +2,10 @@ package com.sudoku.backend.services;
 
 import com.sudoku.backend.jpa.entities.Sudoku;
 import com.sudoku.backend.models.Cell;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
+@Component
 public class SudokuService {
     public enum Difficulty {
         EASY,
@@ -217,17 +220,26 @@ public class SudokuService {
     private int[][] emptyGrid(int rows, int cols) {
         return new int[rows][cols];
     }
+    private int[][] dupe(int[][] grid) {
+        int[][] duplicate = emptyGrid(9,9);
+        for(int i = 0; i < 9; i++) {
+            System.arraycopy(grid[i], 0, duplicate[i], 0, 9);
+        }
+        return duplicate;
+    }
 
     /**
      * Initializes a new game by generating the grids according to the difficulty.
      */
     public Sudoku newSudoku(Difficulty difficulty) {
         Sudoku newSudoku = new Sudoku();
-        int[][] grid = emptyGrid(9, 9);
-        solve(grid, rndRange(0,8), rndRange(0,8));
-        newSudoku.setSolution(grid);
-        generateGrid(grid, difficulty);
-        newSudoku.setSudoku(grid);
+        int[][] solution = emptyGrid(9, 9);
+        solve(solution, rndRange(0,8), rndRange(0,8));
+        newSudoku.setSolution(solution);
+
+        int[][] sudoku = dupe(solution);
+        generateGrid(sudoku, difficulty);
+        newSudoku.setSudoku(sudoku);
 
         return newSudoku;
     }

@@ -35,7 +35,7 @@ public class SudokuController {
     @GetMapping("/generate/{difficulty}")
     public ResponseEntity<Sudoku> getSudokuById(@PathVariable String difficulty) {
         try {
-            SudokuService.Difficulty diff = SudokuService.Difficulty.valueOf(difficulty);
+            SudokuService.Difficulty diff = SudokuService.Difficulty.valueOf(difficulty.toUpperCase());
             Sudoku newSudoku = service.newSudoku(diff);
             return ResponseEntity.of(Optional.of(newSudoku));
         }
