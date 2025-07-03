@@ -394,6 +394,21 @@ function setupEventHandlers() {
         }
     });
 
+    document.addEventListener("keydown", (e) => {
+        if (e.key >= "1" && e.key <= "9") {
+            e.preventDefault();
+            handleInput(e.key);
+        } else if (e.key === "Delete" || e.key === "Backspace") {
+            e.preventDefault();
+            deleteActiveCell();
+        } else if (e.key === "n") {
+            console.log("Note mode toggled");
+            state.isNoteMode = !state.isNoteMode;
+            const noteButton = document.querySelector('[data-value="N"]');
+            if (noteButton) noteButton.classList.toggle("active", state.isNoteMode);
+        }
+    });
+
     document.querySelector(".numPad").addEventListener("click", e => {
         if (!e.target.classList.contains("numButton")) return;
         const value = e.target.dataset.value;
