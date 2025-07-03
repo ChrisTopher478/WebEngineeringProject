@@ -406,6 +406,9 @@ function setupEventHandlers() {
             state.isNoteMode = !state.isNoteMode;
             const noteButton = document.querySelector('[data-value="N"]');
             if (noteButton) noteButton.classList.toggle("active", state.isNoteMode);
+        } else if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "k", "j", "h", "l"].includes(e.key)) {
+            e.preventDefault();
+            navigateCell(e.key);
         }
     });
 
@@ -437,6 +440,38 @@ function setupEventHandlers() {
         saveButton.addEventListener("click", saveCreatedSudoku);
         document.querySelector(".leftSideButtons").appendChild(saveButton);
     }
+}
+
+function navigateCell(key) {
+    if (!state.activeCell) {
+        state.activeCell = { row: 0, col: 0 };
+        renderBoard();
+        return;
+    }
+
+    let { row, col } = state.activeCell;
+    
+    switch (key) {
+        case "ArrowUp":
+        case "k":
+            row = Math.max(0, row - 1);
+            break;
+        case "ArrowDown":
+        case "j":
+            row = Math.min(8, row + 1);
+            break;
+        case "ArrowLeft":
+        case "h":
+            col = Math.max(0, col - 1);
+            break;
+        case "ArrowRight":
+        case "l":
+            col = Math.min(8, col + 1);
+            break;
+    }
+    
+    state.activeCell = { row, col };
+    renderBoard();
 }
 
 function deleteActiveCell() {
