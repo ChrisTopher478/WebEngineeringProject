@@ -404,7 +404,6 @@ function setupEventHandlers() {
             e.preventDefault();
             deleteActiveCell();
         } else if (e.key === "n") {
-            console.log("Note mode toggled");
             state.isNoteMode = !state.isNoteMode;
             const noteButton = document.querySelector('[data-value="N"]');
             if (noteButton) noteButton.classList.toggle("active", state.isNoteMode);
@@ -414,7 +413,7 @@ function setupEventHandlers() {
         } else if ((e.ctrlKey || e.metaKey) && e.key === "y") {
             e.preventDefault();
             state.redo();
-        } else if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "k", "j", "h", "l"].includes(e.key)) {
+        } else if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "k", "j", "h", "l", "w", "s", "a", "d"].includes(e.key)) {
             e.preventDefault();
             navigateCell(e.key);
         }
@@ -462,18 +461,22 @@ function navigateCell(key) {
     switch (key) {
         case "ArrowUp":
         case "k":
+        case "w":
             row = Math.max(0, row - 1);
             break;
         case "ArrowDown":
         case "j":
+        case "s":
             row = Math.min(8, row + 1);
             break;
         case "ArrowLeft":
         case "h":
+        case "a":
             col = Math.max(0, col - 1);
             break;
         case "ArrowRight":
         case "l":
+        case "d":
             col = Math.min(8, col + 1);
             break;
     }
