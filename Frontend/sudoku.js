@@ -395,7 +395,9 @@ function setupEventHandlers() {
     });
 
     document.addEventListener("keydown", (e) => {
-        if (e.key >= "1" && e.key <= "9") {
+        if (e.key === "Escape") {
+            togglePausePopup();
+        } else if (e.key >= "1" && e.key <= "9") {
             e.preventDefault();
             handleInput(e.key);
         } else if (e.key === "Delete" || e.key === "Backspace") {
@@ -406,6 +408,12 @@ function setupEventHandlers() {
             state.isNoteMode = !state.isNoteMode;
             const noteButton = document.querySelector('[data-value="N"]');
             if (noteButton) noteButton.classList.toggle("active", state.isNoteMode);
+        } else if ((e.ctrlKey || e.metaKey) && e.key === "z") {
+            e.preventDefault();
+            state.undo();
+        } else if ((e.ctrlKey || e.metaKey) && e.key === "y") {
+            e.preventDefault();
+            state.redo();
         } else if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "k", "j", "h", "l"].includes(e.key)) {
             e.preventDefault();
             navigateCell(e.key);
@@ -600,6 +608,14 @@ function closePausePopup() {
     startTime += pauseDuration;
     timerInterval = setInterval(updateTimer, 1000);
     document.getElementById("pausePopup").style.display = "none";
+}
+
+function togglePausePopup() {
+    if (document.getElementById("pausePopup").style.display === "flex") {
+        closePausePopup();
+    } else {
+        openPausePopup();
+    }
 }
 
 function saveCurrentGame() {
