@@ -403,7 +403,7 @@ function setupEventHandlers() {
         } else if (e.key === "Delete" || e.key === "Backspace") {
             e.preventDefault();
             deleteActiveCell();
-        } else if (e.key === "n") {
+        } else if (e.key === "n" || e.key === "N") {
             state.isNoteMode = !state.isNoteMode;
             const noteButton = document.querySelector('[data-value="N"]');
             if (noteButton) noteButton.classList.toggle("active", state.isNoteMode);
@@ -467,7 +467,7 @@ function navigateCell(key) {
         case "ArrowDown":
         case "j":
         case "s":
-            row = Math.min(8, row + 1);
+            row = Math.min(BOARD_SIZE - 1, row + 1);
             break;
         case "ArrowLeft":
         case "h":
@@ -477,7 +477,7 @@ function navigateCell(key) {
         case "ArrowRight":
         case "l":
         case "d":
-            col = Math.min(8, col + 1);
+            col = Math.min(BOARD_SIZE - 1, col + 1);
             break;
     }
     
