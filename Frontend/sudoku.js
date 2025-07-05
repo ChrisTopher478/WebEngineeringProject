@@ -394,6 +394,31 @@ function setupEventHandlers() {
         }
     });
 
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+            togglePausePopup();
+        } else if (e.key >= "1" && e.key <= "9") {
+            e.preventDefault();
+            handleInput(e.key);
+        } else if (e.key === "Delete" || e.key === "Backspace") {
+            e.preventDefault();
+            deleteActiveCell();
+        } else if (e.key === "n" || e.key === "N") {
+            state.isNoteMode = !state.isNoteMode;
+            const noteButton = document.querySelector('[data-value="N"]');
+            if (noteButton) noteButton.classList.toggle("active", state.isNoteMode);
+        } else if ((e.ctrlKey || e.metaKey) && e.key === "z") {
+            e.preventDefault();
+            state.undo();
+        } else if ((e.ctrlKey || e.metaKey) && e.key === "y") {
+            e.preventDefault();
+            state.redo();
+        } else if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "k", "j", "h", "l", "w", "s", "a", "d"].includes(e.key)) {
+            e.preventDefault();
+            navigateCell(e.key);
+        }
+    });
+
     document.querySelector(".numPad").addEventListener("click", e => {
         if (!e.target.classList.contains("numButton")) return;
         const value = e.target.dataset.value;
@@ -422,6 +447,42 @@ function setupEventHandlers() {
         saveButton.addEventListener("click", saveCreatedSudoku);
         document.querySelector(".leftSideButtons").appendChild(saveButton);
     }
+}
+
+function navigateCell(key) {
+    if (!state.activeCell) {
+        state.activeCell = { row: 0, col: 0 };
+        renderBoard();
+        return;
+    }
+
+    let { row, col } = state.activeCell;
+    
+    switch (key) {
+        case "ArrowUp":
+        case "k":
+        case "w":
+            row = Math.max(0, row - 1);
+            break;
+        case "ArrowDown":
+        case "j":
+        case "s":
+            row = Math.min(BOARD_SIZE - 1, row + 1);
+            break;
+        case "ArrowLeft":
+        case "h":
+        case "a":
+            col = Math.max(0, col - 1);
+            break;
+        case "ArrowRight":
+        case "l":
+        case "d":
+            col = Math.min(BOARD_SIZE - 1, col + 1);
+            break;
+    }
+    
+    state.activeCell = { row, col };
+    renderBoard();
 }
 
 function deleteActiveCell() {
@@ -550,6 +611,14 @@ function closePausePopup() {
     startTime += pauseDuration;
     timerInterval = setInterval(updateTimer, 1000);
     document.getElementById("pausePopup").style.display = "none";
+}
+
+function togglePausePopup() {
+    if (document.getElementById("pausePopup").style.display === "flex") {
+        closePausePopup();
+    } else {
+        openPausePopup();
+    }
 }
 
 function saveCurrentGame() {
