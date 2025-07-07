@@ -306,12 +306,16 @@ function handleInput(value) {
 
         const settings = window.getSettings();
 
-        if (!isValidInput(row, col, numValue)) {
-            if (!cell.invalid) {
-                errorCount++;  
-                updateErrorDisplay();
+        if (settings.checkMistakes) {
+            if (!isValidInput(row, col, numValue)) {
+                if (!cell.invalid) {
+                    errorCount++;  
+                    updateErrorDisplay();
+                }
+                cell.invalid = true;
+            } else {
+                cell.invalid = false;
             }
-            cell.invalid = true;
         } else {
             cell.invalid = false;
         }
@@ -575,23 +579,23 @@ function updateErrorDisplay() {
     const errorCounterElement = document.getElementById("errorCounter");
     const pauseErrorDisplayElement = document.getElementById("pauseErrorDisplay");
 
-    const cappedErrors = Math.min(errorCount, 3);
-    errorCounterElement.textContent = `Mistakes: ${cappedErrors}/3`;
-    pauseErrorDisplayElement.textContent = `Mistakes: ${cappedErrors}/3`;
-
     if (!checkMistakes) {
         // Fehleranzeige komplett ausblenden
         errorCounterElement.style.display = "none";
         pauseErrorDisplayElement.style.display = "none";
+        return;
     }
-    else {
-        // Fehleranzeige sichtbar machen
-        errorCounterElement.style.display = "inline";
-        pauseErrorDisplayElement.style.display = "inline";
 
-        if (cappedErrors >= 3) {
-            setTimeout(handleGameOver, 1000);
-        }
+    // Fehleranzeige sichtbar machen
+    errorCounterElement.style.display = "inline";
+    pauseErrorDisplayElement.style.display = "inline";
+
+    const cappedErrors = Math.min(errorCount, 3);
+    errorCounterElement.textContent = `Mistakes: ${cappedErrors}/3`;
+    pauseErrorDisplayElement.textContent = `Mistakes: ${cappedErrors}/3`;
+
+    if (cappedErrors >= 3) {
+        setTimeout(handleGameOver, 1000);
     }
 }
 
