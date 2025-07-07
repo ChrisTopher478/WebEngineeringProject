@@ -1,6 +1,5 @@
 // Globale Variable für aktuelle Einstellungen
 let currentSettings = {
-    darkMode: false,
     checkMistakes: false,
     checkDuplicates: false,
     highlightNumbers: true,
@@ -9,11 +8,10 @@ let currentSettings = {
 
 // Mapping zwischen Toggle-IDs und Setting-Schlüsseln
 const toggleMap = {
-    toggle1: 'darkMode',
-    toggle2: 'checkMistakes',
-    toggle3: 'checkDuplicates',
-    toggle4: 'highlightNumbers',
-    toggle5: 'backgroundHighlight',
+    toggle1: 'checkMistakes',
+    toggle2: 'checkDuplicates',
+    toggle3: 'highlightNumbers',
+    toggle4: 'backgroundHighlight',
 };
 
 // Cookie-Hilfsfunktionen
