@@ -11,10 +11,6 @@ class SudokuState {
         this.isNoteMode = false;
         this.undoStack = [];
         this.redoStack = [];
-        let timerInterval, startTime;
-        let pausedTime = 0;
-        let isPaused = false;
-        let errorCount = 0;
     }
 
     save() {
@@ -404,6 +400,8 @@ function setupEventHandlers() {
     });
 
     document.addEventListener("keydown", (e) => {
+        if (document.getElementById("winPopup").style.display === "flex") return;
+
         if (e.key === "Escape") {
             togglePausePopup();
         } else if (e.key >= "1" && e.key <= "9") {
@@ -723,7 +721,7 @@ function isGameWon() {
 }
 
 function handleGameWon() {
-  openWinPopup();
+    openWinPopup();
 }
 
 function handleGameOver() {
