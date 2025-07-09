@@ -323,7 +323,7 @@ function handleInput(value) {
     renderBoard();
 
     if (isGameWon()) {
-        setTimeout(handleGameWon, 300);
+        openWinPopup();
     }
 }
 
@@ -511,6 +511,7 @@ function deleteActiveCell() {
 }
 
 function resetGame() {
+    state.activeCell = null;
     state.board.forEach(row => row.forEach(cell => {
         if (!cell.fixed) Object.assign(cell, { value: null, notes: [], invalid: false, conflict: { row: false, col: false, block: false } });
     }));
@@ -527,7 +528,7 @@ function toggleSidebar(open) {
     document.getElementById("overlay").classList.toggle("active", open);
 }
 
-// === Win-Popup ===
+// === Win/Lose-Popup ===
 function openWinPopup() {
     clearInterval(timerInterval);
     pausedTime = Date.now();
@@ -545,8 +546,21 @@ function openWinPopup() {
     document.getElementById("winPopup").style.display = "flex";
 }
 
-function closeWinPopup() {
-    document.getElementById("winPopup").style.display = "none";
+function openLosePopup() {
+    clearInterval(timerInterval);
+    pausedTime = Date.now();
+
+    const elapsed = pausedTime - startTime;
+    const minutes = Math.floor(elapsed / 60000);
+    const seconds = Math.floor((elapsed % 60000) / 1000);
+    document.getElementById("loseTimerDisplay").textContent = `${pad(minutes)}:${pad(seconds)}`;
+
+    document.getElementById("losePopup").style.display = "flex";
+}
+
+function retryGame() {
+    document.getElementById("losePopup").style.display = "none";
+    resetGame();
 }
 
 // === Timer ===
@@ -708,7 +722,7 @@ function updateErrorDisplay() {
     pauseErrorDisplayElement.textContent = `Mistakes: ${cappedErrors}/3`;
 
     if (cappedErrors >= 3) {
-        setTimeout(handleGameOver, 1000);
+        openLosePopup();
     }
 }
 
@@ -718,13 +732,4 @@ function isGameWon() {
             cell.value === state.solution[r][c]
         )
     );
-}
-
-function handleGameWon() {
-    openWinPopup();
-}
-
-function handleGameOver() {
-    alert("Game over! You reached the mistakelimit.");
-    window.location.href = "startPage.html";
 }
