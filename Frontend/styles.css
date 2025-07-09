@@ -21,6 +21,7 @@
     --dark-striped-bg-color-one: #b5af71;
     --dark-striped-bg-color-two: #c3bc74;
     --board-bg-color: #eaeaea;
+    --board-highlight-color: #d1f2f7;
 
     --striped-bg: repeating-linear-gradient(
         45deg,
@@ -487,7 +488,7 @@ td.fixed.conflict-block,
   background highlighting
 ======================= */
 .peer-highlight {
-    background-color: var(--highlight-color);
+    background-color: var(--board-highlight-color);
 }
 
 /* =======================
@@ -554,7 +555,8 @@ td.fixed.conflict-block,
    mark active cell
 ======================= */
 .active-cell {
-    outline: 2px solid blue;
+    outline: 3px solid blue;
+    border-radius: 5px;
 }
 
 /* ======================================================================================

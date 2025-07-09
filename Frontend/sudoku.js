@@ -350,11 +350,14 @@ function validateBoard() {
     const settings = window.getSettings();
     const checkMistakes = settings?.checkMistakes ?? true;
 
+    errorCount = 0;
+
     state.board.forEach((row, r) => {
         row.forEach((cell, c) => {
             if (!cell.fixed && cell.value) {
                 const isInvalid = checkMistakes ? !isValidInput(r, c, cell.value) : false;
                 cell.invalid = isInvalid;
+                errorCount++;
             } else {
                 cell.invalid = false;
             }
