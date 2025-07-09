@@ -118,8 +118,34 @@
         </div>
     </div>
 
+    <div id="winPopup" class="popup">
+        <!-- PLAYER WON POPUP -->
+        <div class="popupContent">
+            <h2>YOU WIN!</h2>
+            <p>You solved the Sudoku!</p>
+            <div id="winStatusContainer" class="pause-status">
+                <p id="winTimerDisplay" class="pause-timer">00:00</p>
+                <p id="winErrorDisplay" class="pause-error">Mistakes: 0/3</p>
+            </div>
+            <div>
+                <button class="popupButton" onclick="window.location.href = 'startPage.html';">Home</button>
+                <button class="popupButton" onclick="startNewGame();">Start New Game</button>
+            </div>
+        </div>
+
+        <!-- POPUP NEUSTART -->
+        <div id="playPopup" class="popupContent" style="display: none;">
+            <h2>Start New Game</h2>
+            <div class="difficultyButtons">
+                <button class="popupButton difficultyButton" data-difficulty="easy">Easy</button>
+                <button class="popupButton difficultyButton" data-difficulty="medium">Medium</button>
+                <button class="popupButton difficultyButton" data-difficulty="hard">Hard</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="util.js"></script>
     <script src="settings.js"></script>
     <script src="sudoku.js"></script>
-
 </body>
 </html>

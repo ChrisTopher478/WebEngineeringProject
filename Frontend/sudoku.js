@@ -388,12 +388,12 @@ function setupEventHandlers() {
     document.getElementById("pauseButton").addEventListener("click", openPausePopup);
     document.getElementById("resumeButton").addEventListener("click", closePausePopup);
     document.getElementById("exitButton").addEventListener("click", () => {
-    closePausePopup();
-    saveCurrentGame();
-    setTimeout(() => {
-        window.location.href = "startPage.html";
-    }, 500);
-});
+        closePausePopup();
+        saveCurrentGame();
+        setTimeout(() => {
+            window.location.href = "startPage.html";
+        }, 500);
+    });
 
 
     // NEU: Schließen durch Klicken auf den Hintergrund
@@ -456,6 +456,13 @@ function setupEventHandlers() {
         saveButton.addEventListener("click", saveCreatedSudoku);
         document.querySelector(".leftSideButtons").appendChild(saveButton);
     }
+
+    // Popup Buttons verarbeiten 
+    const difficulties = ["easy", "medium", "hard"];
+    document.querySelectorAll(".difficultyButton").forEach((button, index) => {
+        const difficulty = difficulties[index];
+        button.addEventListener("click", () => fetchSudokuByDifficulty(difficulty));
+    });
 }
 
 function navigateCell(key) {
@@ -520,6 +527,28 @@ function resetGame() {
 function toggleSidebar(open) {
     document.getElementById("sidebar").classList.toggle("open", open);
     document.getElementById("overlay").classList.toggle("active", open);
+}
+
+// === Win-Popup ===
+function openWinPopup() {
+    clearInterval(timerInterval);
+    pausedTime = Date.now();
+
+    // Timer aktualisieren
+    const elapsed = pausedTime - startTime;
+    const minutes = Math.floor(elapsed / 60000);
+    const seconds = Math.floor((elapsed % 60000) / 1000);
+    document.getElementById("winTimerDisplay").textContent = `${pad(minutes)}:${pad(seconds)}`;
+
+    // Fehlerstand aktualisieren
+    const cappedErrors = Math.min(errorCount, 3);
+    document.getElementById("winErrorDisplay").textContent = `Mistakes: ${cappedErrors}/3`;
+
+    document.getElementById("winPopup").style.display = "flex";
+}
+
+function closeWinPopup() {
+    document.getElementById("winPopup").style.display = "none";
 }
 
 // === Timer ===
@@ -630,6 +659,14 @@ function togglePausePopup() {
     }
 }
 
+function openPlayPopup() {
+    document.getElementById("playPopup").style.display = "flex";
+}
+
+function startNewGame() {
+    openPlayPopup();
+}
+
 function saveCurrentGame() {
     const startBoard = state.board.map(row =>
         row.map(cell => cell.fixed ? cell.value : null)
@@ -686,8 +723,7 @@ function isGameWon() {
 }
 
 function handleGameWon() {
-  alert("Congratulations! You solved the Sudoku!");
-  window.location.href = "startPage.html";
+  openWinPopup();
 }
 
 function handleGameOver() {
