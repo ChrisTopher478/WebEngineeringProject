@@ -454,6 +454,9 @@ function setupEventHandlers() {
             window.location.href = "startPage.html";
         });
 
+        document.getElementById("timer").style.display = "none";
+        document.getElementById("errorCounter").style.display = "none";
+
         const saveButton = document.createElement("button");
         saveButton.textContent = "Save";
         saveButton.classList.add("leftSideButton");
