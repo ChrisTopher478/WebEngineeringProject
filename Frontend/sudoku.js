@@ -367,6 +367,10 @@ function handleInput(value) {
 
 	checkConflicts();
 	renderBoard();
+
+	if (isGameWon()) {
+		setTimeout(handleGameWon, 300);
+	}
 }
 
 function clearNotesForPeers(row, col, value) {
@@ -456,6 +460,8 @@ function setupEventHandlers() {
 	});
 
 	document.addEventListener("keydown", (e) => {
+		if (document.getElementById("winPopup").style.display === "flex") return;
+
 		if (e.key === "Escape") {
 			togglePausePopup();
 		} else if (e.key >= "1" && e.key <= "9") {
@@ -576,6 +582,41 @@ function navigateCell(key) {
 	renderBoard();
 }
 
+// === Win/Lose-Popup ===
+function openWinPopup() {
+	clearInterval(state.timerInterval);
+	state.pausedTime = Date.now();
+
+	// Timer aktualisieren
+	const elapsed = state.pausedTime - state.startTime;
+	const minutes = Math.floor(state.elapsed / 60000);
+	const seconds = Math.floor((state.elapsed % 60000) / 1000);
+	document.getElementById("winTimerDisplay").textContent = `${pad(minutes)}:${pad(seconds)}`;
+
+	// Fehlerstand aktualisieren
+	const cappedErrors = Math.min(state.errorCount, 3);
+	document.getElementById("winErrorDisplay").textContent = `Mistakes: ${cappedErrors}/3`;
+
+	document.getElementById("winPopup").style.display = "flex";
+}
+
+function openLosePopup() {
+	clearInterval(state.timerInterval);
+	state.pausedTime = Date.now();
+
+	const elapsed = state.pausedTime - state.startTime;
+	const minutes = Math.floor(elapsed / 60000);
+	const seconds = Math.floor((elapsed % 60000) / 1000);
+	document.getElementById("loseTimerDisplay").textContent = `${pad(minutes)}:${pad(seconds)}`;
+
+	document.getElementById("losePopup").style.display = "flex";
+}
+
+function retryGame() {
+	document.getElementById("losePopup").style.display = "none";
+	resetGame();
+}
+
 function deleteActiveCell() {
 	if (!state.activeCell) return;
 	const { row, col } = state.activeCell;
@@ -593,6 +634,7 @@ function deleteActiveCell() {
 }
 
 function resetGame() {
+	state.activeCell = null;
 	state.board.forEach((row) =>
 		row.forEach((cell) => {
 			if (!cell.fixed)
@@ -737,6 +779,14 @@ function togglePausePopup() {
 	}
 }
 
+function openPlayPopup() {
+	document.getElementById("playPopup").classList.add("active");
+}
+
+function startNewGame() {
+	openPlayPopup();
+}
+
 function saveCurrentGame() {
 	const startBoard = state.board.map((row) =>
 		row.map((cell) => (cell.fixed ? cell.value : null))
@@ -811,8 +861,16 @@ function updateErrorDisplay() {
 	}
 }
 
-function handleGameOver() {
-	alert("Game over! You reached the mistakelimit.");
+function isGameWon() {
+	return state.board.every((row, r) =>
+		row.every((cell, c) =>
+			cell.value === state.solution[r][c]
+		)
+	);
+}
+
+function handleGameWon() {
+	openWinPopup();
 	fetch(`http://localhost:8080/sudoku/cancel`,
 		{
 			method: "DELETE",
@@ -829,5 +887,26 @@ function handleGameOver() {
 	}).catch(err => {
 		console.error('Fetch error:', err);
 	});
-	window.location.href = "startPage.html";
+	// window.location.href = "startPage.html";
+}
+
+function handleGameOver() {
+	openLosePopup();
+	fetch(`http://localhost:8080/sudoku/cancel`,
+		{
+			method: "DELETE",
+			headers: {
+				"Content-Type": "application/json",
+				'Authorization': 'Bearer ' + getToken()
+			}
+		}
+	).then(response => {
+		if (!response.ok) {
+			throw new Error("Could not cancel lost game!")
+		}
+		return response.json();
+	}).catch(err => {
+		console.error('Fetch error:', err);
+	});
+	// window.location.href = "startPage.html";
 }

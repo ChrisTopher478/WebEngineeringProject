@@ -39,7 +39,7 @@ document.addEventListener("DOMContentLoaded", () => {
 			overlay: document.getElementById("overlay"),
 			playButton: document.querySelectorAll(".menuButton")[1],
 			playPopup: document.getElementById("playPopup"),
-			popupButtons: document.querySelectorAll(".popupButton"),
+			difficultyButtons: document.querySelectorAll(".popupButton"),
 			importButton: document.getElementById("importButton"),
 			fileInput: document.getElementById("fileInput"),
 		};
@@ -132,7 +132,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 		// Popup Buttons verarbeiten
 		const difficulties = ["easy", "medium", "hard", "continue"];
-		elements.popupButtons.forEach((button, index) => {
+		elements.difficultyButtons.forEach((button, index) => {
 			const difficulty = difficulties[index];
 			button.addEventListener("click", async () => {
 				if (difficulty === "continue") {

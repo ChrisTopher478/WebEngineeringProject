@@ -13,6 +13,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap"
         rel="stylesheet">
+    <script type="module" src="auth.js"></script>
+    <script type="module" src="startpage.js"></script>
+    <script type="module" src="settings.js"></script>
 </head>
 
 <body>
@@ -108,17 +111,13 @@
         <div class="popupContent">
             <h2>Start Game</h2>
             <div class="difficultyButtons">
-                <button class="popupButton" data-difficulty="easy">Easy</button>
-                <button class="popupButton" data-difficulty="medium">Medium</button>
-                <button class="popupButton" data-difficulty="hard">Hard</button>
-                <button class="popupButton" data-difficulty="continue">Continue</button>
+                <button class="popupButton difficultyButton" data-difficulty="easy">Easy</button>
+                <button class="popupButton difficultyButton" data-difficulty="medium">Medium</button>
+                <button class="popupButton difficultyButton" data-difficulty="hard">Hard</button>
+                <button class="popupButton difficultyButton" data-difficulty="continue">Continue</button>
             </div>
         </div>
     </div>
-
-    <script type="module" src="auth.js"></script>
-    <script type="module" src="startpage.js"></script>
-    <script type="module" src="settings.js"></script>
 </body>
 
 </html>
