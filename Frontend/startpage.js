@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
         overlay: document.getElementById("overlay"),
         playButton: document.querySelectorAll(".menuButton")[1],
         playPopup: document.getElementById("playPopup"),
-        popupButtons: document.querySelectorAll(".popupButton"),
+        difficultyButtons: document.querySelectorAll(".difficultyButton"),
         importButton: document.getElementById("importButton"),
         fileInput: document.getElementById("fileInput"),
     };
@@ -85,22 +85,9 @@ elements.fileInput?.addEventListener("change", (event) => {
         if (!e.target.closest(".popupContent")) closePlayPopup();
     });
 
-    //  Sudoku Lade-Logik 
-    const loadSudoku = async (difficulty) => {
-        try {
-            const response = await fetch(`games/${difficulty}.json`);
-            const data = await response.json();
-            const randomGame = data[Math.floor(Math.random() * data.length)];
-            localStorage.setItem("sudokuData", JSON.stringify(randomGame));
-            window.location.href = "index.html";
-        } catch (err) {
-            console.error(`Fehler beim Laden von ${difficulty}:`, err);
-        }
-    };
-
     // Popup Buttons verarbeiten 
     const difficulties = ["easy", "medium", "hard", "continue"];
-    elements.popupButtons.forEach((button, index) => {
+    elements.difficultyButtons.forEach((button, index) => {
         const difficulty = difficulties[index];
         button.addEventListener("click", () => {
             if (difficulty === "continue") {
@@ -112,7 +99,7 @@ elements.fileInput?.addEventListener("change", (event) => {
                     alert("No saved game found.");
                 }
             } else {
-                loadSudoku(difficulty);
+                fetchSudokuByDifficulty(difficulty);
             }
         });
     });

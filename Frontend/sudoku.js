@@ -11,10 +11,6 @@ class SudokuState {
         this.isNoteMode = false;
         this.undoStack = [];
         this.redoStack = [];
-        let timerInterval, startTime;
-        let pausedTime = 0;
-        let isPaused = false;
-        let errorCount = 0;
     }
 
     save() {
@@ -323,6 +319,12 @@ function handleInput(value) {
 
     checkConflicts();
     renderBoard();
+    checkConflicts();
+    renderBoard();
+
+    if (isGameWon()) {
+        openWinPopup();
+    }
 }
 
 function clearNotesForPeers(row, col, value) {
@@ -382,12 +384,12 @@ function setupEventHandlers() {
     document.getElementById("pauseButton").addEventListener("click", openPausePopup);
     document.getElementById("resumeButton").addEventListener("click", closePausePopup);
     document.getElementById("exitButton").addEventListener("click", () => {
-    closePausePopup();
-    saveCurrentGame();
-    setTimeout(() => {
-        window.location.href = "startPage.html";
-    }, 500);
-});
+        closePausePopup();
+        saveCurrentGame();
+        setTimeout(() => {
+            window.location.href = "startPage.html";
+        }, 500);
+    });
 
 
     // NEU: Schließen durch Klicken auf den Hintergrund
@@ -398,6 +400,8 @@ function setupEventHandlers() {
     });
 
     document.addEventListener("keydown", (e) => {
+        if (document.getElementById("winPopup").style.display === "flex") return;
+
         if (e.key === "Escape") {
             togglePausePopup();
         } else if (e.key >= "1" && e.key <= "9") {
@@ -450,6 +454,13 @@ function setupEventHandlers() {
         saveButton.addEventListener("click", saveCreatedSudoku);
         document.querySelector(".leftSideButtons").appendChild(saveButton);
     }
+
+    // Popup Buttons verarbeiten 
+    const difficulties = ["easy", "medium", "hard"];
+    document.querySelectorAll(".difficultyButton").forEach((button, index) => {
+        const difficulty = difficulties[index];
+        button.addEventListener("click", () => fetchSudokuByDifficulty(difficulty));
+    });
 }
 
 function navigateCell(key) {
@@ -500,6 +511,7 @@ function deleteActiveCell() {
 }
 
 function resetGame() {
+    state.activeCell = null;
     state.board.forEach(row => row.forEach(cell => {
         if (!cell.fixed) Object.assign(cell, { value: null, notes: [], invalid: false, conflict: { row: false, col: false, block: false } });
     }));
@@ -514,6 +526,41 @@ function resetGame() {
 function toggleSidebar(open) {
     document.getElementById("sidebar").classList.toggle("open", open);
     document.getElementById("overlay").classList.toggle("active", open);
+}
+
+// === Win/Lose-Popup ===
+function openWinPopup() {
+    clearInterval(timerInterval);
+    pausedTime = Date.now();
+
+    // Timer aktualisieren
+    const elapsed = pausedTime - startTime;
+    const minutes = Math.floor(elapsed / 60000);
+    const seconds = Math.floor((elapsed % 60000) / 1000);
+    document.getElementById("winTimerDisplay").textContent = `${pad(minutes)}:${pad(seconds)}`;
+
+    // Fehlerstand aktualisieren
+    const cappedErrors = Math.min(errorCount, 3);
+    document.getElementById("winErrorDisplay").textContent = `Mistakes: ${cappedErrors}/3`;
+
+    document.getElementById("winPopup").style.display = "flex";
+}
+
+function openLosePopup() {
+    clearInterval(timerInterval);
+    pausedTime = Date.now();
+
+    const elapsed = pausedTime - startTime;
+    const minutes = Math.floor(elapsed / 60000);
+    const seconds = Math.floor((elapsed % 60000) / 1000);
+    document.getElementById("loseTimerDisplay").textContent = `${pad(minutes)}:${pad(seconds)}`;
+
+    document.getElementById("losePopup").style.display = "flex";
+}
+
+function retryGame() {
+    document.getElementById("losePopup").style.display = "none";
+    resetGame();
 }
 
 // === Timer ===
@@ -624,6 +671,14 @@ function togglePausePopup() {
     }
 }
 
+function openPlayPopup() {
+    document.getElementById("playPopup").classList.add("active");
+}
+
+function startNewGame() {
+    openPlayPopup();
+}
+
 function saveCurrentGame() {
     const startBoard = state.board.map(row =>
         row.map(cell => cell.fixed ? cell.value : null)
@@ -667,11 +722,14 @@ function updateErrorDisplay() {
     pauseErrorDisplayElement.textContent = `Mistakes: ${cappedErrors}/3`;
 
     if (cappedErrors >= 3) {
-        setTimeout(handleGameOver, 1000);
+        openLosePopup();
     }
 }
 
-function handleGameOver() {
-    alert("Game over! You reached the mistakelimit.");
-    window.location.href = "startPage.html";
+function isGameWon() {
+    return state.board.every((row, r) =>
+        row.every((cell, c) =>
+            cell.value === state.solution[r][c]
+        )
+    );
 }
