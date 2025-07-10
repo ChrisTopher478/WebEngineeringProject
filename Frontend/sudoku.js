@@ -59,6 +59,7 @@ async function initGame() {
         createEmptyBoard();
         setupEventHandlers();
         renderBoard();
+        updateErrorDisplay();
         return;
     }
 
@@ -455,7 +456,6 @@ function setupEventHandlers() {
         });
 
         document.getElementById("timer").style.display = "none";
-        document.getElementById("errorCounter").style.display = "none";
 
         const saveButton = document.createElement("button");
         saveButton.textContent = "Save";
@@ -715,7 +715,7 @@ function updateErrorDisplay() {
     const errorCounterElement = document.getElementById("errorCounter");
     const pauseErrorDisplayElement = document.getElementById("pauseErrorDisplay");
 
-    if (!checkMistakes) {
+    if (!checkMistakes || isCreateMode()) {
         // Fehleranzeige komplett ausblenden
         errorCounterElement.style.display = "none";
         pauseErrorDisplayElement.style.display = "none";
