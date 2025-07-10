@@ -115,12 +115,23 @@
                 <p id="pauseTimerDisplay" class="pause-timer">00:00</p>
                 <p id="pauseErrorDisplay" class="pause-error">Mistakes: 0/3</p>
             </div>
-            <button id="resumeButton" class="popupButton">Continue</button>
-            <button id="exitButton" class="popupButton">Exit Game</button>
+            <div>
+                <button id="resumeButton" class="popupButton">Continue</button>
+                <button id="exitButton" class="popupButton">Exit Game</button>
+            </div>
         </div>
     </div>
 
     <div id="winPopup" class="popup">
+        <!-- POPUP NEUSTART -->
+        <div id="playPopup" class="popupContent playPopup-slide">
+            <h2>Start New Game</h2>
+            <div class="difficultyButtons">
+                <button class="popupButton difficultyButton" data-difficulty="easy">Easy</button>
+                <button class="popupButton difficultyButton" data-difficulty="medium">Medium</button>
+                <button class="popupButton difficultyButton" data-difficulty="hard">Hard</button>
+            </div>
+        </div>
         <!-- PLAYER WON POPUP -->
         <div class="popupContent">
             <h2>YOU WIN!</h2>
@@ -132,16 +143,6 @@
             <div>
                 <button class="popupButton" onclick="window.location.href = 'startPage.html';">Home</button>
                 <button class="popupButton" onclick="startNewGame();">Start New Game</button>
-            </div>
-        </div>
-
-        <!-- POPUP NEUSTART -->
-        <div id="playPopup" class="popupContent" style="display: none;">
-            <h2>Start New Game</h2>
-            <div class="difficultyButtons">
-                <button class="popupButton difficultyButton" data-difficulty="easy">Easy</button>
-                <button class="popupButton difficultyButton" data-difficulty="medium">Medium</button>
-                <button class="popupButton difficultyButton" data-difficulty="hard">Hard</button>
             </div>
         </div>
     </div>

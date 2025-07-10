@@ -764,7 +764,7 @@ function togglePausePopup() {
 }
 
 function openPlayPopup() {
-	document.getElementById("playPopup").style.display = "flex";
+	document.getElementById("playPopup").classList.add("active");
 }
 
 function startNewGame() {
