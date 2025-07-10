@@ -367,6 +367,10 @@ function handleInput(value) {
 
 	checkConflicts();
 	renderBoard();
+
+	if (isGameWon()) {
+		setTimeout(handleGameWon, 300);
+	}
 }
 
 function clearNotesForPeers(row, col, value) {
@@ -809,6 +813,19 @@ function updateErrorDisplay() {
 	if (cappedErrors >= 3) {
 		setTimeout(handleGameOver, 10);
 	}
+}
+
+function isGameWon() {
+	return state.board.every((row, r) =>
+		row.every((cell, c) =>
+			cell.value === state.solution[r][c]
+		)
+	);
+}
+
+function handleGameWon() {
+	alert("Congratulations! You solved the Sudoku!");
+	window.location.href = "startPage.html";
 }
 
 function handleGameOver() {
