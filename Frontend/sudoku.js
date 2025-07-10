@@ -146,7 +146,20 @@ function createEmptyBoard() {
     state.solution = []; 
 }
 
+function hasConflict() {
+    return state.board.some(row => 
+        row.some(cell => 
+            cell.conflict.row || cell.conflict.col || cell.conflict.block
+        )
+    );
+}
+
 function saveCreatedSudoku() {
+    if (hasConflict()) {
+        alert("Please resolve all conflicts before saving.");
+        return;
+    }
+
     const sudoku = state.board.map(row => row.map(cell => cell.value || null));
     const gameData = {
         sudoku: sudoku,
