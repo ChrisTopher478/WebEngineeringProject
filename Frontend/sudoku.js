@@ -460,6 +460,8 @@ function setupEventHandlers() {
 	});
 
 	document.addEventListener("keydown", (e) => {
+		if (document.getElementById("winPopup").style.display === "flex") return;
+
 		if (e.key === "Escape") {
 			togglePausePopup();
 		} else if (e.key >= "1" && e.key <= "9") {
