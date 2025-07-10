@@ -580,6 +580,28 @@ function navigateCell(key) {
 	renderBoard();
 }
 
+// === Win-Popup ===
+function openWinPopup() {
+	clearInterval(state.timerInterval);
+	state.pausedTime = Date.now();
+
+	// Timer aktualisieren
+	const elapsed = state.pausedTime - state.startTime;
+	const minutes = Math.floor(state.elapsed / 60000);
+	const seconds = Math.floor((state.elapsed % 60000) / 1000);
+	document.getElementById("winTimerDisplay").textContent = `${pad(minutes)}:${pad(seconds)}`;
+
+	// Fehlerstand aktualisieren
+	const cappedErrors = Math.min(state.errorCount, 3);
+	document.getElementById("winErrorDisplay").textContent = `Mistakes: ${cappedErrors}/3`;
+
+	document.getElementById("winPopup").style.display = "flex";
+}
+
+function closeWinPopup() {
+	document.getElementById("winPopup").style.display = "none";
+}
+
 function deleteActiveCell() {
 	if (!state.activeCell) return;
 	const { row, col } = state.activeCell;
@@ -741,6 +763,14 @@ function togglePausePopup() {
 	}
 }
 
+function openPlayPopup() {
+	document.getElementById("playPopup").style.display = "flex";
+}
+
+function startNewGame() {
+	openPlayPopup();
+}
+
 function saveCurrentGame() {
 	const startBoard = state.board.map((row) =>
 		row.map((cell) => (cell.fixed ? cell.value : null))
@@ -824,8 +854,24 @@ function isGameWon() {
 }
 
 function handleGameWon() {
-	alert("Congratulations! You solved the Sudoku!");
-	window.location.href = "startPage.html";
+	openWinPopup();
+	fetch(`http://localhost:8080/sudoku/cancel`,
+		{
+			method: "DELETE",
+			headers: {
+				"Content-Type": "application/json",
+				'Authorization': 'Bearer ' + getToken()
+			}
+		}
+	).then(response => {
+		if (!response.ok) {
+			throw new Error("Could not cancel lost game!")
+		}
+		return response.json();
+	}).catch(err => {
+		console.error('Fetch error:', err);
+	});
+	// window.location.href = "startPage.html";
 }
 
 function handleGameOver() {

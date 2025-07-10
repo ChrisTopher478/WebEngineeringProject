@@ -145,6 +145,7 @@ body {
 
 h2 {
     text-decoration-line: underline;
+    font-weight: bold;
 }
 
 /* =======================
@@ -239,7 +240,7 @@ input {
 }
 
 /* =======================
-   Sidebar & Overlay
+   Overlays
 ======================= */
 .sidebar {
     position: fixed;
@@ -537,6 +538,7 @@ td.fixed.conflict-block,
     align-items: flex-start;
     padding-top: 7rem;
     z-index: var(--sidebar-z-index);
+    gap: 20px;
 }
 
 .popupButtonGroup {
@@ -683,6 +685,9 @@ td.fixed.conflict-block,
     text-align: center;
     border: solid, 5px, var(--panel-border-color);
     border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .difficultyButtons {
@@ -697,14 +702,16 @@ td.fixed.conflict-block,
     font-size: 1.1rem;
     margin: 5px;
     cursor: pointer;
-    border: 2px solid var(--border-color);
-    border-radius: 5px;
     background: none;
-    transition: transform 0.3s;
+    border: 4px solid var(--panel-border-color);
+    border-radius: 4px;
+    transition: border-width, transform, box-shadow, 0.1s ease;
 }
 
 .popupButton:hover {
-    transform: scale(1.025);
+    border-color: #ffde58;
+    transform: scale(1.05) translate(-3px, -3px);
+    box-shadow: 3px 3px 0 #5b4705;
 }
 
 .popupButton[data-difficulty="easy"] {
