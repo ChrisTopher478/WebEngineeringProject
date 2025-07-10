@@ -448,6 +448,12 @@ function setupEventHandlers() {
     document.getElementById("overlay").addEventListener("click", () => toggleSidebar(false));
 
     if (isCreateMode()) {
+        const pauseButton = document.getElementById("pauseButton");
+        pauseButton.textContent = "Title";
+        pauseButton.addEventListener("click", () => {
+            window.location.href = "startPage.html";
+        });
+
         const saveButton = document.createElement("button");
         saveButton.textContent = "Save";
         saveButton.classList.add("leftSideButton");
