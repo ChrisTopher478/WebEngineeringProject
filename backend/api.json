@@ -1,0 +1,259 @@
+[
+  {
+    "backendAPI": {
+      "UserResource": {
+        "basepath": "/user",
+        "endpoints": {
+          "register": {
+            "method": "POST",
+            "path": "/register",
+            "requestBody": {
+              "username": "",
+              "password": "",
+              "passwordConfirm": ""
+            },
+            "responses": [
+              {
+                "code": "201 Created",
+                "body": {
+                  "userId": "userId",
+                  "username": ""
+                }
+              },
+              {
+                "code": "409 Conflict",
+                "body": {
+                  "error": "User with this Username already exists."
+                }
+              }
+            ]
+          },
+          "login": {
+            "method": "POST",
+            "path": "/login",
+            "requestBody": {
+              "username": "",
+              "password": ""
+            },
+            "responses": [
+              {
+                "code": "204 No-Content"
+              },
+              {
+                "code": "401 Unauthorized",
+                "body": {
+                  "error": "Wrong Username or Password."
+                }
+              }
+            ]
+          },
+          "delete": {
+            "method": "DELETE",
+            "path": "/delete/<userId>",
+            "pathParam": "userId",
+            "responses": [
+              {
+                "code": "200 OK",
+                "body": {
+                  "userId": "userId",
+                  "username": ""
+                }
+              },
+              {
+                "code": "404 Not Found",
+                "body": {
+                  "error": "The User with id: <userId> does not exist."
+                }
+              },
+              {
+                "code": "401 Unauthorized",
+                "body": {
+                  "error": "You need to login to use this resource."
+                }
+              },
+              {
+                "code": "403 Forbidden",
+                "body": {
+                  "error": "You are not allowed to perform this action."
+                }
+              }
+            ]
+          },
+          "updatePassword": {
+            // maybe a PasswordResource
+            "method": "PUT",
+            "path": "/updatePassword/<userId>",
+            "pathParam": "userId",
+            "requestBody": {
+              "passwordOld": "",
+              "passwordNew": "",
+              "passwordNewConfirm": ""
+            },
+            "responses": [
+              {
+                "code": "204 No-Content"
+              },
+              {
+                "code": "401 Unauthorized",
+                "body": {
+                  "error": "You need to login to update your password."
+                }
+              },
+              {
+                "code": "403 Forbidden",
+                "body": {
+                  "error": "You may only attempt resetting your own password."
+                }
+              },
+              {
+                "code": "404 Not Found",
+                "body": {
+                  "error": "The User with id: <userId> does not exist."
+                }
+              }
+            ]
+          }
+        }
+      },
+      "SudokuResource": {
+        "basepath": "/sudoku",
+        "endpoints": {
+          "saveForUser": {
+            "method": "POST",
+            "path": "/save/<userId>",
+            "pathParam": "userId",
+            "requestBody": {
+              "sudoku": [
+                1,
+                2,
+                3,
+                4,
+                0,
+                0,
+                0
+              ],
+              "solution": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+              ]
+            },
+            "responses": [
+              {
+                "code": "200 OK",
+                "body": {
+                  "userId": "userId",
+                  "sudoku": [
+                    1,
+                    2,
+                    3,
+                    4,
+                    0,
+                    0,
+                    0
+                  ],
+                  "solution": [
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7
+                  ]
+                }
+              },
+              {
+                "code": "401 Unauthorized",
+                "body": {
+                  "error": "You can only save an unfinished Sudoku when logged in."
+                }
+              },
+              {
+                "code": "403 Forbidden",
+                "body": {
+                  "error": "You can only save an unfinished Sudoku for yourself."
+                }
+              },
+              {
+                "code": "404 Not Found",
+                "body": {
+                  "error": "The User with id: <userId> does not exist."
+                }
+              },
+              {
+                "code": "422 Unprocessable Entity",
+                "body": {
+                  "error": "The [<sudoku> | <solution], does not have the correct length."
+                }
+              }
+            ]
+          },
+          "getForUser": {
+            "method": "GET",
+            "path": "/continue/<userId>",
+            "pathParam": "userId",
+            "responses": [
+              {
+                "code": "200 OK",
+                "body": {
+                  "sudoku": [
+                    1,
+                    2,
+                    3,
+                    4,
+                    0,
+                    0,
+                    0
+                  ],
+                  "solution": [
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7
+                  ]
+                }
+              },
+              {
+                "code": "401 Unauthorized",
+                "body": {
+                  "error": "You need to login to get unfinished Sudokus."
+                }
+              },
+              {
+                "code": "403 Forbidden",
+                "body": {
+                  "error": "You are not allowed to perform this action."
+                }
+              },
+              {
+                "code": "404 Not Found",
+                "body": {
+                  "error": "No unfinished Sudoku saved for user."
+                }
+              }
+            ]
+          },
+          "deleteForUser": {},
+          "storeSubmission": {},
+
+          "deleteSubmission": {},
+          "getSubmissions": {},
+          "convertForImport": {},
+          "convertForExport": {}
+        }
+      },
+      "AdminResource": {
+        "basepath": "/admin",
+        "endpoints": {}
+      }
+    }
+  }
+]

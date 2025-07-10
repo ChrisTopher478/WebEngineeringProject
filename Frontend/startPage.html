@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="de">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,18 +11,22 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap"
+        rel="stylesheet">
 </head>
 
 <body>
     <!-- HEADER -->
     <header class="heading">
+        <div id="loginContainer" class="loginContainer">
+            <button id="login">Login</button>
+        </div>
         <div class="logoContainer">
             <img class="logo" src="img/blackLogo.png" alt="Sudoku Logo">
         </div>
         <div class="settingsContainer">
-            <button id="openSettings" aria-label="Einstellungen öffnen">
-                <img src="img/settings.svg" alt="Einstellungen">
+            <button id="openSettings" aria-label="open settings">
+                <img src="img/settings.svg" alt="settings">
             </button>
         </div>
     </header>
@@ -50,22 +55,22 @@
         <div class="toggleContainer">
             <label class="toggleSwitch">
                 <p>Check for mistakes</p>
-                <input type="checkbox" id="toggle1">
+                <input type="checkbox" id="checkMistakes">
                 <span class="slider"></span>
             </label>
             <label class="toggleSwitch">
                 <p>Check for duplicates</p>
-                <input type="checkbox" id="toggle2">
+                <input type="checkbox" id="checkDuplicates">
                 <span class="slider"></span>
             </label>
             <label class="toggleSwitch">
                 <p>Highlight same numbers</p>
-                <input type="checkbox" id="toggle3">
+                <input type="checkbox" id="highlightNumbers">
                 <span class="slider"></span>
             </label>
             <label class="toggleSwitch">
                 <p>Backround highlighting</p>
-                <input type="checkbox" id="toggle4">
+                <input type="checkbox" id="backgroundHighlight">
                 <span class="slider"></span>
             </label>
         </div>
@@ -76,7 +81,8 @@
         <div class="rules-content">
             <h1>Sudoku – Rules</h1>
             <h2>1. Objective of the Game</h2>
-            <p>The goal of Sudoku is to fill a 9×9 grid so that every row, every column, and each of the nine 3×3 subgrids contain all digits from 1 to 9 exactly once.</p>
+            <p>The goal of Sudoku is to fill a 9×9 grid so that every row, every column, and each of the nine 3×3
+                subgrids contain all digits from 1 to 9 exactly once.</p>
 
             <h2>2. Game Board</h2>
             <ul>
@@ -110,7 +116,9 @@
         </div>
     </div>
 
-    <script src="settings.js"></script>
-    <script src="startpage.js"></script>
+    <script type="module" src="auth.js"></script>
+    <script type="module" src="startpage.js"></script>
+    <script type="module" src="settings.js"></script>
 </body>
+
 </html>

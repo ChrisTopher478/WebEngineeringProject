@@ -1,0 +1,2 @@
+CREATE DATABASE sudoku;
+CREATE DATABASE keycloak;

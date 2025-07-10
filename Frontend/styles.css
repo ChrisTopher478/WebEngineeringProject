@@ -23,13 +23,11 @@
     --board-bg-color: #eaeaea;
     --board-highlight-color: #d1f2f7;
 
-    --striped-bg: repeating-linear-gradient(
-        45deg,
-        var(--striped-bg-color-one),
-        var(--striped-bg-color-one) 10px,
-        var(--striped-bg-color-two) 10px,
-        var(--striped-bg-color-two) 20px
-    );
+    --striped-bg: repeating-linear-gradient(45deg,
+            var(--striped-bg-color-one),
+            var(--striped-bg-color-one) 10px,
+            var(--striped-bg-color-two) 10px,
+            var(--striped-bg-color-two) 20px);
 
     --cell-size: 2rem;
     --input-size: 1.8rem;
@@ -111,6 +109,37 @@ body {
 }
 
 #openSettings:hover img {
+    rotate: 20deg;
+}
+
+.loginContainer {
+    background: var(--striped-bg);
+    display: flex;
+    align-items: center;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+    box-shadow: #000 0px 2px 10px;
+    border-bottom: solid;
+    border-left: solid;
+    border-right: solid;
+    border-width: 4px;
+    border-color: var(--panel-border-color);
+    position: absolute;
+    left: 10px;
+}
+
+#login {
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+#login a {
+    color: black;
+    text-decoration-line: none;
+}
+
+#login:hover img {
     rotate: 20deg;
 }
 
@@ -219,7 +248,7 @@ input {
     width: 300px;
     height: 100%;
     background: var(--striped-bg);
-    box-shadow: -2px 0 5px rgba(0,0,0,0.3);
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.3);
     z-index: var(--sidebar-z-index);
     padding: 1rem;
     display: none;
@@ -235,8 +264,8 @@ input {
     top: 0;
     left: 0;
     width: 100%;
-    height:  100%;
-    background-color: rgba(0,0,0,0.4);
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.3s ease;
@@ -268,7 +297,7 @@ input {
     align-items: center;
     font-size: 1rem;
     cursor: pointer;
-    width: 100%; 
+    width: 100%;
 }
 
 .toggleSwitch input {
@@ -302,11 +331,11 @@ input {
     transition: transform 0.3s;
 }
 
-.toggleSwitch input:checked + .slider {
+.toggleSwitch input:checked+.slider {
     background-color: var(--toggle-on);
 }
 
-.toggleSwitch input:checked + .slider::before {
+.toggleSwitch input:checked+.slider::before {
     transform: translateX(20px);
 }
 
@@ -321,7 +350,8 @@ input {
     overflow: hidden;
 }
 
-.leftSideButton, .leftSideButtonSmall {
+.leftSideButton,
+.leftSideButtonSmall {
     font-size: 0.9rem;
     cursor: pointer;
     background-color: var(--button-bg);
@@ -339,7 +369,8 @@ input {
     border-right: solid 2px;
 }
 
-.leftSideButton:hover, .leftSideButtonSmall:hover {
+.leftSideButton:hover,
+.leftSideButtonSmall:hover {
     background-color: var(--button-hover-bg);
 }
 
@@ -424,7 +455,7 @@ td.fixed.conflict-block,
 .conflict-row .cellValue,
 .conflict-col .cellValue,
 .conflict-block .cellValue {
-    color: var(--error-color); 
+    color: var(--error-color);
     font-weight: bold;
 }
 
@@ -524,8 +555,9 @@ td.fixed.conflict-block,
     display: flex;
     justify-content: center;
     gap: 2rem;
-    margin-bottom: 0.1rem;/* weniger Abstand zu den Buttons */
-    margin-top: 0.5rem; 
+    margin-bottom: 0.1rem;
+    /* weniger Abstand zu den Buttons */
+    margin-top: 0.5rem;
 }
 
 .pause-timer {
@@ -533,10 +565,12 @@ td.fixed.conflict-block,
     font-weight: bold;
 }
 
-.pause-timer, .pause-error {
+.pause-timer,
+.pause-error {
     font-size: 1rem;
     font-weight: bold;
-    margin: 0; /* alle margins der p-Tags entfernen */
+    margin: 0;
+    /* alle margins der p-Tags entfernen */
 }
 
 .pause-error {
@@ -634,8 +668,10 @@ td.fixed.conflict-block,
     background-color: #00000066;
     display: none;
     justify-content: center;
-    align-items: flex-start; /* WICHTIG: weiter nach unten positionieren */
-    padding-top: 7rem; /* Abstand zum Header */
+    align-items: flex-start;
+    /* WICHTIG: weiter nach unten positionieren */
+    padding-top: 7rem;
+    /* Abstand zum Header */
     z-index: var(--sidebar-z-index);
 }
 

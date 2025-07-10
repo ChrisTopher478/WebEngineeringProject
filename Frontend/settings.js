@@ -1,3 +1,5 @@
+import { getToken, getKeyCloak } from './auth.js';
+
 // Globale Variable für aktuelle Einstellungen
 let currentSettings = {
     checkMistakes: false,
@@ -8,10 +10,10 @@ let currentSettings = {
 
 // Mapping zwischen Toggle-IDs und Setting-Schlüsseln
 const toggleMap = {
-    toggle1: 'checkMistakes',
-    toggle2: 'checkDuplicates',
-    toggle3: 'highlightNumbers',
-    toggle4: 'backgroundHighlight',
+    checkMistakes: 'checkMistakes',
+    checkDuplicates: 'checkDuplicates',
+    highlightNumbers: 'highlightNumbers',
+    backgroundHighlight: 'backgroundHighlight',
 };
 
 // Cookie-Hilfsfunktionen
@@ -37,23 +39,77 @@ function saveSettings() {
     }, {});
     setCookie("sudokuSettings", JSON.stringify(settings));
     currentSettings = settings;
+    if (getKeyCloak().authenticated) {
+        const token = getToken();
+        const data = fetch(`http://localhost:8080/settings/save`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    'Authorization': 'Bearer ' + token
+                },
+                body: getCookie("sudokuSettings")
+            }
+        ).then(response => {
+            if (!response.ok) {
+                return currentSettings;
+            }
+            return response.json();
+        }).catch(err => {
+            console.error('Fetch error:', err);
+        });
+        currentSettings = data;
+    }
 }
 
 // Einstellungen laden
-function loadSettings() {
-    const stored = getCookie("sudokuSettings");
-    if (!stored) return;
+async function loadSettings() {
+    const kc = getKeyCloak();
+    if (!getKeyCloak().authenticated) {
+        const stored = getCookie("sudokuSettings");
+        if (!stored) return;
 
-    try {
-        const settings = JSON.parse(stored);
-        currentSettings = settings;
+        try {
+            const settings = JSON.parse(stored);
+            currentSettings = settings;
 
-        Object.entries(toggleMap).forEach(([id, key]) => {
-            const toggle = getToggle(id);
-            if (toggle) toggle.checked = settings[key];
+            Object.entries(toggleMap).forEach(([id, key]) => {
+                const toggle = getToggle(id);
+                if (toggle) toggle.checked = settings[key];
+            });
+        } catch (e) {
+            console.error("Error while loading the saved settings:", e);
+        }
+    }
+    else {
+        getKeyCloak();
+        const token = getToken();
+        const data = await fetch(`http://localhost:8080/settings/load`,
+            {
+                method: "GET",
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                }
+            }
+        ).then(response => {
+            if (!response.ok) {
+                throw new Error("Unable to load settings!");
+            }
+            return response.json();
+        }).catch(err => {
+            console.error('Fetch error:', err);
         });
-    } catch (e) {
-        console.error("Error while loading the saved settings:", e);
+
+        currentSettings = {
+            checkMistakes: data.checkMistakes,
+            checkDuplicates: data.checkDuplicates,
+            highlightNumbers: data.highlightNumbers,
+            backgroundHighlight: data.backgroundHighlight,
+        };
+
+        document.querySelectorAll('.toggleSwitch input').forEach(toggle => {
+            toggle.checked = currentSettings[toggle.id];
+        });
     }
 }
 
@@ -79,10 +135,13 @@ window.loadSettings = loadSettings;
 window.setupSettingsListeners = setupSettingsListeners;
 
 // Initialisierung
-function initializeSettings() {
-    loadSettings();
+async function initializeSettings() {
+    await loadSettings();
     setupSettingsListeners();
 }
 
-document.addEventListener("DOMContentLoaded", initializeSettings);
+document.addEventListener("auth-ready", async (e) => {
+    await initializeSettings();
+});
+// document.addEventListener("DOMContentLoaded", initializeSettings);
 window.addEventListener("pageshow", initializeSettings);

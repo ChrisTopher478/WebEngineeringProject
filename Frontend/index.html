@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="de">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sudoku</title>
     <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
 
     <!-- HEADER -->
@@ -69,7 +71,7 @@
                     <button class="numButton" data-value="9" type="button">9</button>
                 </div>
             </aside>
-            
+
         </div>
 
     </main>
@@ -84,22 +86,22 @@
         <div class="toggleContainer">
             <label class="toggleSwitch">
                 <p>Check for mistakes</p>
-                <input type="checkbox" id="toggle1">
+                <input type="checkbox" id="checkMistakes">
                 <span class="slider"></span>
             </label>
             <label class="toggleSwitch">
                 <p>Check for duplicates</p>
-                <input type="checkbox" id="toggle2">
+                <input type="checkbox" id="checkDuplicates">
                 <span class="slider"></span>
             </label>
             <label class="toggleSwitch">
                 <p>Highlight same numbers</p>
-                <input type="checkbox" id="toggle3">
+                <input type="checkbox" id="highlightNumbers">
                 <span class="slider"></span>
             </label>
             <label class="toggleSwitch">
                 <p>Backround highlighting</p>
-                <input type="checkbox" id="toggle4">
+                <input type="checkbox" id="backgroundHighlight">
                 <span class="slider"></span>
             </label>
         </div>
@@ -118,8 +120,10 @@
         </div>
     </div>
 
-    <script src="settings.js"></script>
-    <script src="sudoku.js"></script>
+    <script type="module" src="auth.js"></script>
+    <script type="module" src="settings.js"></script>
+    <script type="module" src="sudoku.js"></script>
 
 </body>
+
 </html>
