@@ -582,7 +582,7 @@ function navigateCell(key) {
 	renderBoard();
 }
 
-// === Win-Popup ===
+// === Win/Lose-Popup ===
 function openWinPopup() {
 	clearInterval(state.timerInterval);
 	state.pausedTime = Date.now();
@@ -600,8 +600,21 @@ function openWinPopup() {
 	document.getElementById("winPopup").style.display = "flex";
 }
 
-function closeWinPopup() {
-	document.getElementById("winPopup").style.display = "none";
+function openLosePopup() {
+	clearInterval(state.timerInterval);
+	state.pausedTime = Date.now();
+
+	const elapsed = state.pausedTime - state.startTime;
+	const minutes = Math.floor(elapsed / 60000);
+	const seconds = Math.floor((elapsed % 60000) / 1000);
+	document.getElementById("loseTimerDisplay").textContent = `${pad(minutes)}:${pad(seconds)}`;
+
+	document.getElementById("losePopup").style.display = "flex";
+}
+
+function retryGame() {
+	document.getElementById("losePopup").style.display = "none";
+	resetGame();
 }
 
 function deleteActiveCell() {
@@ -621,6 +634,7 @@ function deleteActiveCell() {
 }
 
 function resetGame() {
+	state.activeCell = null;
 	state.board.forEach((row) =>
 		row.forEach((cell) => {
 			if (!cell.fixed)
@@ -877,7 +891,7 @@ function handleGameWon() {
 }
 
 function handleGameOver() {
-	alert("Game over! You reached the mistakelimit.");
+	openLosePopup();
 	fetch(`http://localhost:8080/sudoku/cancel`,
 		{
 			method: "DELETE",
@@ -894,5 +908,5 @@ function handleGameOver() {
 	}).catch(err => {
 		console.error('Fetch error:', err);
 	});
-	window.location.href = "startPage.html";
+	// window.location.href = "startPage.html";
 }

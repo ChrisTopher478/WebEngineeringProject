@@ -150,6 +150,19 @@
         </div>
     </div>
 
+    <!-- PLAYER LOST POPUP -->
+    <div id="losePopup" class="popup">
+        <div class="popupContent">
+            <h2>YOU LOST!</h2>
+            <p>You made too many mistakes.</p>
+            <p id="loseTimerDisplay" class="pause-timer">00:00</p>
+            <div>
+                <button class="popupButton" onclick="window.location.href = 'startPage.html';">Home</button>
+                <button class="popupButton" onclick="retryGame();">Try Again</button>
+            </div>
+        </div>
+    </div>
+
 </body>
 
 </html>
